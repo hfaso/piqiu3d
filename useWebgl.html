@@ -1,29 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Draw a point</title>
 </head>
 <body>
-<div>
-    <canvas id="webgl" style="width:800px;height:600px;"></canvas>
-</div>
-<script>
-    function main(){
+    <div style="width:800px;height:600px;">
+        <canvas id="webgl" style="width:800px;height:600px;"></canvas>
+    </div>
+    <script>
+
+        var VSHADER_SOURCE =
+            'void main() {\n' +
+            ' gl_Position = vec(0.0 0.0, 0.0, 1.0);\n' +
+            ' gl_Position = 10.0;\n' +
+            '}\n';
+
+        var FSHADER_SOURCE =
+            'void main() {\n' +
+            ' gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n' +
+            '}\n';
         var canvas = document.getElementById('webgl');
 
-        var gl = canvas.getContext(canvas);
+        var gl = canvas.getContext('webgl');
 
-        if(!gl) {
+        if (!gl) {
             console.log('Failed to get the rendering context for WebGL');
-            return;
+        }
+
+        if (!initShader(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
+            console.log('Failed to initalize shader.');
         }
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-    }
-</script>
+        gl.drawArrays(gl.COLOR_BUFFER_BIT);
+
+    </script>
 </body>
+
 </html>
