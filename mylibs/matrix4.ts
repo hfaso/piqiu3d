@@ -39,7 +39,24 @@ export class Matrix4{
         }
     }
 
-    public copy():void {
+    public copy(dest?:Matrix4):Matrix4 {
+        if(!dest) {
+            dest = new Matrix4();
+        }
 
+        for (let i=0; i < 16; i++){
+            dest.values[i] = this.values[i];
+        }
+
+        return dest;
     }
+
+    // public transpose(): Matrix4 {
+    //     const temp01 = this.values[1]
+    //     const temp02 = this.values[2]
+    //     const temp03 = this.values[3]
+    //     const temp12 = this.values[4]
+    //     const temp13 = this.values[7]
+    //     const temp23 = this.values[11]
+    // }
 }
