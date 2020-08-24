@@ -51,12 +51,28 @@ export class Matrix4{
         return dest;
     }
 
-    // public transpose(): Matrix4 {
-    //     const temp01 = this.values[1]
-    //     const temp02 = this.values[2]
-    //     const temp03 = this.values[3]
-    //     const temp12 = this.values[4]
-    //     const temp13 = this.values[7]
-    //     const temp23 = this.values[11]
-    // }
+    public transpose(): Matrix4 {
+        const temp10 = this.values[1]
+        const temp20 = this.values[2]
+        const temp30 = this.values[3]
+        const temp21 = this.values[6]
+        const temp31 = this.values[7]
+        const temp32 = this.values[11]
+
+        this.values[1] = this.values[4]
+        this.values[2] = this.values[8]
+        this.values[3] = this.values[12]
+        this.values[6] = this.values[9]
+        this.values[7] = this.values[13]
+        this.values[11] = this.values[14]
+
+        this.values[4] = temp10
+        this.values[8] = temp20
+        this.values[12] = temp30
+        this.values[9] = temp21
+        this.values[13] = temp31
+        this.values[14] = temp32
+
+        return this
+    }
 }
