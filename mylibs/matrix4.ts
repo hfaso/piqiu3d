@@ -1,3 +1,5 @@
+import { Vector3 } from "./vector3";
+
 // Matrix4类
 export class Matrix4{
     
@@ -152,4 +154,75 @@ export class Matrix4{
 
         return this;
     }
+
+    public multiply(matrix: Matrix4): Matrix4 {
+        const a00 = this.values[0]
+        const a01 = this.values[1]
+        const a02 = this.values[2]
+        const a03 = this.values[3]
+        const a10 = this.values[4]
+        const a11 = this.values[5]
+        const a12 = this.values[6]
+        const a13 = this.values[7]
+        const a20 = this.values[8]
+        const a21 = this.values[9]
+        const a22 = this.values[10]
+        const a23 = this.values[11]
+        const a30 = this.values[12]
+        const a31 = this.values[13]
+        const a32 = this.values[14]
+        const a33 = this.values[15]
+
+        const b00 = matrix.values[0]
+        const b01 = matrix.values[1]
+        const b02 = matrix.values[2]
+        const b03 = matrix.values[3]
+        const b10 = matrix.values[4]
+        const b11 = matrix.values[5]
+        const b12 = matrix.values[6]
+        const b13 = matrix.values[7]
+        const b20 = matrix.values[8]
+        const b21 = matrix.values[9]
+        const b22 = matrix.values[10]
+        const b23 = matrix.values[11]
+        const b30 = matrix.values[12]
+        const b31 = matrix.values[13]
+        const b32 = matrix.values[14]
+        const b33 = matrix.values[15]
+
+        this.values[0] = a00 * b00 + a01 * b10 + a02 * b20 + a03 * b30
+        this.values[1] = a00 * b01 + a01 * b11 + a02 * b21 + a03 * b31
+        this.values[2] = a00 * b02 + a01 * b12 + a02 * b22 + a03 * b32
+        this.values[3] = a00 * b03 + a01 * b13 + a02 * b23 + a03 * b33
+        this.values[4] = a10 * b00 + a11 * b10 + a12 * b20 + a13 * b30
+        this.values[5] = a10 * b01 + a11 * b11 + a12 * b21 + a13 * b31
+        this.values[6] = a10 * b02 + a11 * b12 + a12 * b22 + a13 * b32
+        this.values[7] = a10 * b03 + a11 * b13 + a12 * b23 + a13 * b33
+        this.values[8] = a20 * b00 + a21 * b10 + a22 * b20 + a23 * b30
+        this.values[9] = a20 * b01 + a21 * b11 + a22 * b21 + a23 * b31
+        this.values[10] = a20 * b02 + a21 * b12 + a22 * b22 + a23 * b32
+        this.values[11] = a20 * b03 + a21 * b13 + a22 * b23 + a23 * b33
+        this.values[12] = a30 * b00 + a31 * b10 + a32 * b20 + a33 * b30
+        this.values[13] = a30 * b01 + a31 * b11 + a32 * b21 + a33 * b31
+        this.values[14] = a30 * b02 + a31 * b12 + a32 * b22 + a33 * b32
+        this.values[15] = a30 * b03 + a31 * b13 + a32 * b23 + a33 * b33
+
+        return this;
+    }
+
+    public multiplyVec3(vec3: Vector3): Vector3 {
+        return new Vector3(
+            this.values[0] * vec3.x + this.values[4] * vec3.y + this.values[8] * vec3.z + this.values[12],
+            this.values[1] * vec3.x + this.values[5] * vec3.y + this.values[9] * vec3.z + this.values[13],
+            this.values[2] * vec3.x + this.values[6] * vec3.y + this.values[10] * vec3.z + this.values[14]
+            )
+    }
+
+    // pubic multiplyVec4
+
+    // public toMat3()
+
+    // public translate(vec3: Vector3): Matrix4 {
+
+    // }
 }
