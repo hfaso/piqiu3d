@@ -5,14 +5,15 @@ export class Matrix4{
     
     constructor(values?:number[]) {
         if (values !== undefined) {
-            for (let i = 0; i < 16; i++){
-                this.values[i] = values[i];
-            }
+            // for (let i = 0; i < 16; i++){
+            //     this.values[i] = values[i];
+            // }
+            this.identity()
         }
     }
 
     private values = new Float32Array(16);
-    static readonly identity = new Matrix4().identity();
+    // static readonly identity = new Matrix4().identity();
 
     public identity():Matrix4 {
         this.values[0] = 1;
@@ -225,4 +226,25 @@ export class Matrix4{
     // public translate(vec3: Vector3): Matrix4 {
 
     // }
+
+    public scale(x: number, y: number, z:number): Matrix4{
+        this.values[0] = x;
+        this.values[1] = 0;
+        this.values[2] = 0;
+        this.values[3] = 0;
+        this.values[4] = 0;
+        this.values[5] = y;
+        this.values[6] = 0;
+        this.values[7] = 0;
+        this.values[8] = 0;
+        this.values[9] = 0;
+        this.values[10] = z;
+        this.values[11] = 0;
+        this.values[12] = 0;
+        this.values[13] = 0;
+        this.values[14] = 0;
+        this.values[15] = 1;
+
+        return this;
+    }
 }

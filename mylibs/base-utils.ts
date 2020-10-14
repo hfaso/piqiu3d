@@ -63,3 +63,16 @@ function loaderShaders(gl:object, type:string, source:string) :string {
     return shader;
 }
 
+function getWebGLContext(canvas: object, opt_debug: boolean) {
+    // Get the rendering context for WebGL
+    var gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl) return null;
+
+    // if opt_debug is explicitly false, create the context for debugging
+    if (arguments.length < 2 || opt_debug) {
+        gl = WebGLDebugUtils.makeDebugContext(gl);
+    }
+
+    return gl;
+}
+
