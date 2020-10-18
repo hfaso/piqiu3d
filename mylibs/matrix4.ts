@@ -131,7 +131,7 @@ export class Matrix4{
         let det = A00 + A01 + A02 + A03;
         
         if(det === 0) {
-            return null;
+            return this;
         }
         
         const detInv = 1/det;
