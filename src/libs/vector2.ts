@@ -2,7 +2,7 @@ export class Vector2{
     private _x: number;
     private _y: number;
 
-    public constructor(x: number=0, y: number=0, z: number=0){
+    public constructor(x: number=0, y: number=0){
         this._x = x;
         this._y = y;
     }
@@ -28,12 +28,12 @@ export class Vector2{
     }
 
     public static get one():Vector2 {
-        return new Vector2(1,1,1);
+        return new Vector2(1, 1);
     }
 
     public static distance(a:Vector2,b:Vector2):number{
         let diff = a.subtract(b);
-        return Math.sqrt(diff.x*diff.x+diff.y*diff.y);
+        return Math.sqrt( diff.x * diff.x + diff.y * diff.y );
     }
 
     public set(x?:number,y?:number,z?:number):void{
