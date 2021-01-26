@@ -254,5 +254,168 @@ export class EventInteraction implements EventListenerObject
         }
     }
 
-    // 
+    // 虚方法，子类能覆写（override），用于更新
+    // 注意: 第二个参数是秒为单位，第一参数是毫秒为单位
+    public update ( elapsedMsec: number, intervalSec: number): void { }
+
+    // 虚方法，子类能覆写（override），用于渲染
+    public render (): void { }
+
+    // 虚函数，子类覆写（overide），用于同步各种资源后启动EventInteraction
+    public async run (): Promise<void>
+    {
+        // 调用start方法，该方法会启动requestAnimationFrame
+        // 然后不停的进行回调
+        this.start();
+    }
+
+    // 调用dispatchXXXX虚方法进行事件分发
+    // handleEvent是接口EventListenerObject定义的协议分发，必须要实现
+    public handleEvent (evt: Event): void
+    {
+        switch ( evt.type )
+        {
+            case "mousedown":
+                this._isMouseDown = true;
+                this.onMouseDown( this._toCanvasMouseEvent( evt, EInputEventType.MOUSEDOWN ) );
+                break;
+            case "mouseup":
+                this._isMouseDown = false;
+                this.onMouseUp( this._toCanvasMouseEvent( evt, EInputEventType.MOUSEUP ) );
+                break;
+            case "mousemove":
+                // 如果isSupportMouseMove为true，才会每次鼠标移动触发mouseMove事件
+                if ( this.isSupportMouseMove )
+                {
+                    this.onMouseMove( this._toCanvasMouseEvent( evt, EInputEventType.MOUSEMOVE ) );
+                }
+                // 同时，如果当前鼠标任意一个键处于按下状态并拖动时，触发drag事件
+                if ( this._isMouseDown )
+                {
+                    this.onMouseDrag( this._toCanvasMouseEvent( evt, EInputEventType.MOUSEDRAG ) );
+                }
+                break;
+            case "keypress":
+                this.onKeyPress( this._toCanvasKeyBoardEvent( evt, EInputEventType.KEYPRESS ) );
+                break;
+            case "keydown":
+                this.onKeyDown( this._toCanvasKeyBoardEvent( evt, EInputEventType.KEYDOWN ) );
+                break;
+            case "keyup":
+                this.onKeyUp( this._toCanvasKeyBoardEvent( evt, EInputEventType.KEYUP ) );
+                break;
+        }
+    }
+
+    protected onMouseDown ( evt: CanvasMouseEvent ): void
+    {
+        return;
+    }
+
+    protected onMouseUp ( evt: CanvasMouseEvent ): void
+    {
+        return;
+    }
+
+    protected onMouseMove ( evt: CanvasMouseEvent ): void
+    {
+        return;
+    }
+
+    protected onMouseDrag ( evt: CanvasMouseEvent ): void
+    {
+        return;
+    }
+
+    protected onKeyDown ( evt: CanvasKeyBoardEvent ): void
+    {
+        return;
+    }
+
+    protected onKeyUp ( evt: CanvasKeyBoardEvent ): void
+    {
+        return;
+    }
+
+    protected onKeyPress ( evt: CanvasKeyBoardEvent ): void
+    {
+        return;
+    }
+
+    protected getMouseCanvas (): HTMLCanvasElement
+    {
+        return this.canvas;
+    }
+
+    // 将鼠标事件发生时鼠标指针的位置变换为相对当前canvas元素的偏移表示
+    // 这是一个私有方法，意味着只能在本类中使用,子类和其他类都无法调用本方法
+    // 只要是鼠标事件（down / up / move / drag .....）都需要调用本方法
+    // 将相对于浏览器viewport表示的点变换到相对于canvas表示的点
+
+    private viewportToCanvasCoordinate ( evt: MouseEvent ): Vector2
+    {
+        // 切记，很重要一点：
+        // getBoundingClientRect方法返回的ClientRect
+        let rect: ClientRect = this.getMouseCanvas().getBoundingClientRect();
+
+        // 获取触发鼠标事件的target元素，这里总是HTMLCanvasElement
+        if ( evt.target )
+        {
+            let x: number = evt.clientX - rect.left;
+            let y: number = 0;
+            y = evt.clientY - rect.top; // 相对于canvas左上的偏移
+            if ( this.isFlipYCoord )
+            {
+                y = this.getMouseCanvas().height - y;
+            }
+            // 变成矢量表示
+            let pos: Vector2 = new Vector2( x, y );
+            return pos;
+        }
+
+        alert( "evt . target为null" );
+        throw new Error( "evt . target为null" );
+    }
+
+    // 将DOM Event对象信息转换为我们自己定义的CanvasMouseEvent事件
+    private _toCanvasMouseEvent ( evt: Event, type: EInputEventType ): CanvasMouseEvent
+    {
+        // 向下转型，将Event转换为MouseEvent
+        let event: MouseEvent = evt as MouseEvent;
+        if ( type === EInputEventType.MOUSEDOWN && event.button === 2 )
+        {
+            this._isRightMouseDown = true;
+        } else if ( type === EInputEventType.MOUSEUP && event.button === 2 )
+        {
+            this._isRightMouseDown = false;
+        }
+
+        let buttonNum: number = event.button;
+
+        if ( this._isRightMouseDown && type === EInputEventType.MOUSEDRAG )
+        {
+            buttonNum = 2;
+        }
+
+        // 将客户区的鼠标pos变换到Canvas坐标系中表示
+        let mousePosition: Vector2 = this.viewportToCanvasCoordinate( event );
+        // 将Event一些要用到的信息传递给CanvasMouseEvent并返回
+        let canvasMouseEvent: CanvasMouseEvent = new CanvasMouseEvent( type, mousePosition, buttonNum, event.altKey, event.ctrlKey, event.shiftKey );
+        return canvasMouseEvent;
+    }
+
+    // 将DOM Event对象信息转换为我们自己定义的Keyboard事件
+    private _toCanvasKeyBoardEvent ( evt: Event, type: EInputEventType ): CanvasKeyBoardEvent
+    {
+        let event: KeyboardEvent = evt as KeyboardEvent;
+        // 将Event一些要用到的信息传递给CanvasKeyBoardEvent并返回
+        let canvasKeyboardEvent: CanvasKeyBoardEvent = new CanvasKeyBoardEvent( type, event.key, event.keyCode, event.repeat, event.altKey, event.ctrlKey, event.shiftKey );
+        return canvasKeyboardEvent;
+    }
+
+    // 初始化时，timers是空列表
+    // 为了减少内存析构，我们在removeTimer时，并不从timers中删除掉timer，而是设置enabled为false
+    // 这样让内存使用量和析构达到相对平衡状态
+    // 每次添加一个计时器时，先查看timers列表中是否有没有时候用的timer，有的话，返回该timer的id号
+    // 如果没有可用的timer，就重新new一个timer，并设置其id号以及其他属性
 }
