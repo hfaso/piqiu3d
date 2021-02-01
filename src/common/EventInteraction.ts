@@ -58,7 +58,7 @@ class Timer
     public timeout: number = 0;
     public onlyOnce: boolean = false; 
 
-    consturctor ( callback:TimerCallback )
+    constructor ( callback:TimerCallback )
     {
         this.callback = callback;
     }
@@ -201,6 +201,9 @@ export class EventInteraction implements EventListenerObject
         // 第一次掉用函数时，设置start和lastTime为timestamp
         if ( this._startTime === -1 ) this._startTime = timeStamp;
         if ( this._lastTime === -1 ) this._lastTime = timeStamp;
+
+        //计算当前时间点与第一次调用step时间点的差
+        let elapsedMsec = timeStamp - this._startTime;
 
         // 计算当前时间点与上一次调用step时间点的差(可以理解为两帧之间的时间差）
         // 此时intervalSec实际是毫秒表示
@@ -418,4 +421,106 @@ export class EventInteraction implements EventListenerObject
     // 这样让内存使用量和析构达到相对平衡状态
     // 每次添加一个计时器时，先查看timers列表中是否有没有时候用的timer，有的话，返回该timer的id号
     // 如果没有可用的timer，就重新new一个timer，并设置其id号以及其他属性
+    public addTimer ( callback: TimerCallback, timeout: number = 1.0, onlyOnce: boolean = false, data: any = undefined ): number
+    {
+        let timer: Timer
+        let found: boolean = false;
+        for ( let i = 0; i < this.timers.length; i++ )
+        {
+            let timer: Timer = this.timers[ i ];
+            if ( timer.enabled === false )
+            {
+                timer.callback = callback;
+                timer.callbackData = data;
+                timer.timeout = timeout;
+                timer.countdown = timeout;
+                timer.enabled = true;
+                timer.onlyOnce = onlyOnce;
+                return timer.id;
+            }
+        }
+
+        // 不存在，就新创建一个Timer对象
+        timer = new Timer( callback );
+        timer.callbackData = data;
+        timer.timeout = timeout;
+        timer.countdown = timeout;
+        timer.enabled = true;
+        timer.id = ++this._timeId; // 由于初始化时id为-1,所以前++
+        timer.onlyOnce = onlyOnce; //设置是否是一次回调还是重复回调
+        // 添加到timers列表中去
+        this.timers.push( timer );
+        // 返回新添加的timer的id号
+        return timer.id;
+    }
+
+    // 根据id在timers列表中查找
+    // 如果找到，则设置timer的enabled为false，并返回true
+    // 如没找到，返回false
+    public removeTimer (id: number ): boolean
+    {
+        let found: boolean = false;
+        for ( let i = 0; i < this.timers.length; i++ )
+        {
+            if ( this.timers[ i ].id === id )
+            {
+                let timer: Timer = this.timers[ i ];
+                timer.enabled = false; // 只是enabled设置为false，并没有从数组中删除掉
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
+    // _handleTimers私有方法被EventInteraction的update函数调用
+    // update函数第二个参数是以秒表示的前后帧时间差
+    // 正符合_handleTimers参数要求
+    // 我们的计时器依赖于requestAnimationFrame回调
+    // 如果当前EventInteraction没有调用start的话
+    // 则计时器不会生效
+    private _handleTimers ( intervalSec: number ): void
+    {
+        // 遍历整个timers列表
+        for ( let i = 0; i < this.timers.length; i++ )
+        {
+            let timer: Timer = this.timers[ i ];
+
+            // 如果当前timer enabled为false，那么继续循环
+            if ( timer.enabled === false )
+            {
+                continue;
+            }
+
+            // countdown初始化时 = timeout
+            // 每次调用本函数，会减少上下帧的时间间隔
+            // 从而形成倒计时的效果
+            timer.countdown -= intervalSec;
+
+            // 如果countdown 小于 0.0，那么说明时间到了
+            // 要触发回调了
+            // 从这里看到，实际上timer并不是很精确的
+            // 举个例子，假设我们update每次0.16秒
+            // 我们的timer设置0.3秒回调一次
+            // 那么实际上是 ( 0.3 - 0.32 ) < 0 ,触发回调
+            if ( timer.countdown < 0.0 )
+            {
+                // 调用回调函数
+                timer.callback( timer.id, timer.callbackData );
+
+                // 如果该计时器需要重复触发
+                if ( timer.onlyOnce === false )
+                {
+                    // 我们重新将countdown设置为timeout
+                    // 由此可见，timeout不会更改，它规定了触发的时间间隔
+                    // 每次更新的是countdown倒计时器
+                    timer.countdown = timer.timeout; //很精妙的一个技巧
+                } else
+                {  // 如果该计时器只需要触发一次，那么我们就删除掉该计时器
+                    this.removeTimer( timer.id );
+                }
+            }
+        }
+    }
+
 }
