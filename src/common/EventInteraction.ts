@@ -2,7 +2,7 @@ import { Vector2 } from '../math/vector2';
 
 export enum EInputEventType
 {
-    MOUSEVENT,    //总类，表示鼠标事件  
+    MOUSEEVENT,    //总类，表示鼠标事件  
     MOUSEDOWN,     //鼠标按下事件
     MOUSEUP,       //鼠标弹起事件
     MOUSEMOVE,     //鼠标移动事件, move事件发生在当前鼠标指针之下的ISprite对象
@@ -27,38 +27,37 @@ export class CanvasInputEvent
     // type是一个枚举对象，用来表示当前的事件类型
     public type: EInputEventType;
 
-    // 构造函数， 使用了default参数
-    public constructor( type: EInputEventType, altKey: boolean = false, ctrlKey: boolean = false, shiftKey: boolean = false )
+    // 构造函数，使用了default参数
+    public constructor ( type: EInputEventType, altKey: boolean = false, ctrlKey: boolean = false, shiftKey: boolean = false )
     {
         this.altKey = altKey;
         this.ctrlKey = ctrlKey;
         this.shiftKey = shiftKey;
         this.type = type;
     }
-
 }
 
 // 回调函数类型别名
-// 回调函数需要第三方实现和设置, 所有导出该回调函数
+// 回调函数需要第三方实现和设置，所有导出该回调函数
 export type TimerCallback = ( id: number, data: any ) => void;
 
 // 纯数据类
-// 不需要导出Timer类，因为只是作为内部使用
+// 我们不需要导出Timer类，因为只是作为内部类使用
 class Timer
 {
-    public id: number = -1;
-    
-    // 标记当前计时器是否有效
-    public enable: boolean = false;
-    
-    public callback: TimerCallback; // 回调函数，到时间会自动调用
-    public callbackData: any = undefined;
-    
-    public countdown: number = 0;
-    public timeout: number = 0;
-    public onlyOnce: boolean = false; 
+    public id: number = -1; // 计时器的id号 
 
-    constructor ( callback:TimerCallback )
+    // 标记当前计时器是否有效，很重要的一个变量，具体看后续代码
+    public enabled: boolean = false;
+
+    public callback: TimerCallback;  // 回调函数，到时间会自动调用
+    public callbackData: any = undefined; // 用作回调函数的参数
+
+    public countdown: number = 0; // 倒计时器，每次update时会倒计时
+    public timeout: number = 0;  // 
+    public onlyOnce: boolean = false;
+
+    constructor ( callback: TimerCallback )
     {
         this.callback = callback;
     }
@@ -66,14 +65,14 @@ class Timer
 
 export class CanvasMouseEvent extends CanvasInputEvent
 {
-    // button表示当前按下鼠标的哪个键
-    // [ 0: 鼠标左键 ，1： 鼠标中键，2：鼠标右键]
+    // button表示当前按下鼠标哪个键
+    // [ 0 : 鼠标左键 ，1 ： 鼠标中键，2 ： 鼠标右键]
     public button: number;
 
     // 基于canvas坐标系的表示
     public canvasPosition: Vector2;
 
-    public constructor ( type: EInputEventType, canvasPos: Vector2, button: number, altKey: boolean = false, ctrlKey: boolean = false, shiftKey: boolean = false)
+    public constructor ( type: EInputEventType, canvasPos: Vector2, button: number, altKey: boolean = false, ctrlKey: boolean = false, shiftKey: boolean = false )
     {
         super( type, altKey, ctrlKey, shiftKey );
         this.canvasPosition = canvasPos;
@@ -82,16 +81,16 @@ export class CanvasMouseEvent extends CanvasInputEvent
     }
 }
 
-export class CanvasKeyboardEvent extends CanvasInputEvent
+export class CanvasKeyBoardEvent extends CanvasInputEvent
 {
     // 当前按下的键的ascii字符
     public key: string;
-    // 当前按下的键的ascii码 （数字）
+    // 当前按下的键的ascii码（数字）
     public keyCode: number;
     // 当前按下的键是否不停的触发事件
     public repeat: boolean;
 
-    public constructor ( type:EInputEventType, key:string, keyCode: number, repeat: boolean, altKey: boolean = false, ctrlKey: boolean = false, shiftKey: boolean = false )
+    public constructor ( type: EInputEventType, key: string, keyCode: number, repeat: boolean, altKey: boolean = false, ctrlKey: boolean = false, shiftKey: boolean = false )
     {
         super( type, altKey, ctrlKey, shiftKey );
         this.key = key;
@@ -103,62 +102,68 @@ export class CanvasKeyboardEvent extends CanvasInputEvent
 export class EventInteraction implements EventListenerObject
 {
     public timers: Timer[] = [];
+
     private _timeId: number = -1;
+
     private _fps: number = 0;
 
-    public isFlipYcoord: boolean = false;
+    public isFlipYCoord: boolean = false;
 
-    // EventInteraction主要是canvas2D和webgl应用
-    // canvas2D和webGl context都是从HTMLCanvasElement元素获取的
+    // 我们的EventInteraction主要是canvas2D和webGL应用
+    // 而canvas2D和webGL context都是从HTMLCanvasElement元素获取的
     public canvas: HTMLCanvasElement;
-    
-    // 对mousemove事件提供一个开关变量
-    // 设置为true，则每次鼠标移动都会触发mousemove事件
+
+    // 本书中的Demo以浏览器为主
+    // 我们对于mousemove事件提供一个开关变量
+    // 如果下面变量设置为true，则每次鼠标移动都会触发mousemove事件
+    // 否则我们就不会触发m
     public isSupportMouseMove: boolean;
 
+    // 我们使用下面变量来标记当前鼠标是否按下状态
+    // 目的是提供mousedrag事件
     protected _isMouseDown: boolean;
-    protected _isRightMouseDown: boolean = false; // 为了支持鼠标按下的drag事件
+    protected _isRightMouseDown: boolean = false; // 为了支持鼠标按下drag事件
 
     // _start成员变量用于标记当前EventInteraction是否进入不间断的循环状态
     protected _start: boolean = false;
-    // 由windows对象的requestAnimationFrame返回的大雨0的id号
-    // 我们可以使用cancelAnimationFrame ( this .requestId )来取消动画循环状态
+    // 由Window对象的requestAnimationFrame返回的大于0的id号
+    // 我们可以使用cancelAnimationFrame ( this ._requestId )来取消动画循环
     protected _requestId: number = -1;
 
-    // 用于计算当前更新 与上一次更新之间的时间差
-    // 用于基于时间的更新
+    // 由于计算当前更新与上一次更新之间的时间差
+    // 用于基于时间的物理更新
     protected _lastTime !: number;
     protected _startTime !: number;
 
-    // 声明每帧的回调函数
-    public frameCallback: ((app: EventInteraction) => void) | null;
+    // 声明每帧回调函数
+    public frameCallback: ( ( app: EventInteraction ) => void ) | null;
 
     public constructor ( canvas: HTMLCanvasElement )
     {
         // EventInteraction基类拥有一个HTMLCanvasElement对象
-        // 子类可以分别从该HTMLCanvasElement中获取Canvas2D或WebGl上下文对象
+        // 这样子类可以分别从该HTMLCanvasElement中获取Canvas2D或WebGL上下文对象
         this.canvas = canvas;
 
         // canvas元素能够监听鼠标事件
-        this.canvas.addEventListener( 'mousedown', this, false );
-        this.canvas.addEventListener( 'mouseup', this, false );
-        this.canvas.addEventListener( 'mousemove', this, false );
+        this.canvas.addEventListener( "mousedown", this, false );
+        this.canvas.addEventListener( "mouseup", this, false );
+        this.canvas.addEventListener( "mousemove", this, false );
 
-        // 键盘事件不能在canvas中触发，但是能在全局的windows对象中触发
+        // 很重要一点，键盘事件不能在canvas中触发，但是能在全局的window对象中触发
         // 因此我们能在window对象中监听键盘事件
-        window.addEventListener('keydown', this, false);
-        window.addEventListener('keyup', this, false);
-        window.addEventListener('keypress', this, false);
+        window.addEventListener( "keydown", this, false );
+        window.addEventListener( "keyup", this, false );
+        window.addEventListener( "keypress", this, false );
 
-        // 初始化时， mouseDown为false
+        // 初始化时，mouseDown为false
         this._isMouseDown = false;
-        
+
         // 默认状态下，不支持mousemove事件
         this.isSupportMouseMove = false;
 
         this.frameCallback = null;
 
-        document.oncontextmenu = function() { return false; } // 禁止右键上下文菜单
+        document.oncontextmenu = function () { return false; } // 禁止右键上下文菜单
     }
 
     // 判断当前EventInteraction是否一直在调用requestAnimationFrame
@@ -167,7 +172,7 @@ export class EventInteraction implements EventListenerObject
         return this._start;
     }
 
-    // 计算当前的fps ()
+    // 计算当前的FPS（Frame Per Second）
     public get fps ()
     {
         return this._fps;
@@ -179,7 +184,7 @@ export class EventInteraction implements EventListenerObject
         if ( this._start === false )
         {
             this._start = true;
-            // this._requestId = -1 // 将_requestId设置为-1
+            //this . _requestId = -1 ; // 将_requestId设置为-1
             // 在start和stop函数中，_lastTime和_startTime都设置为-1
             this._lastTime = -1;
             this._startTime = -1;
@@ -187,6 +192,7 @@ export class EventInteraction implements EventListenerObject
 
             this._requestId = requestAnimationFrame( ( msec: number ): void =>
             {
+                // 启动step方法
                 this.step( msec );
             } );
 
@@ -198,28 +204,28 @@ export class EventInteraction implements EventListenerObject
     // 不停的周而复始运动
     protected step ( timeStamp: number ): void
     {
-        // 第一次掉用函数时，设置start和lastTime为timestamp
+        //第一次调用本函数时，设置start和lastTime为timestamp
         if ( this._startTime === -1 ) this._startTime = timeStamp;
         if ( this._lastTime === -1 ) this._lastTime = timeStamp;
 
         //计算当前时间点与第一次调用step时间点的差
         let elapsedMsec = timeStamp - this._startTime;
 
-        // 计算当前时间点与上一次调用step时间点的差(可以理解为两帧之间的时间差）
+        //计算当前时间点与上一次调用step时间点的差(可以理解为两帧之间的时间差)
         // 此时intervalSec实际是毫秒表示
         let intervalSec = ( timeStamp - this._lastTime );
 
-        // 第一帧的时候，intervalSec为0，防止0作分母
-        if ( intervalSec !== 0)
+        // 第一帧的时候,intervalSec为0,防止0作分母
+        if ( intervalSec !== 0 )
         {
             // 计算fps
             this._fps = 1000.0 / intervalSec;
         }
 
-        // update使用的是秒为单位， 因此转换为秒表示
+        // 我们update使用的是秒为单位，因此转换为秒表示
         intervalSec /= 1000.0;
 
-        // 记录上一次的时间戳
+        //记录上一次的时间戳
         this._lastTime = timeStamp;
 
         this._handleTimers( intervalSec );
@@ -232,11 +238,12 @@ export class EventInteraction implements EventListenerObject
         if ( this.frameCallback !== null )
         {
             this.frameCallback( this );
-        } 
+        }
         // 递归调用，形成周而复始的前进
-        requestAnimationFrame((elapsedMsec: number): void =>{
+        requestAnimationFrame( ( elapsedMsec: number ): void =>
+        {
             this.step( elapsedMsec );
-        });
+        } );
     }
 
     // 停止动画循环
@@ -244,11 +251,11 @@ export class EventInteraction implements EventListenerObject
     {
         if ( this._start )
         {
-            // cancelAnimatioinFrame函数用于：
-            // 取消一个先前通过调用window.requestAnimationFrame()方法添加到计划中的动画帧请求
-            // alert(this._requestId);
+            // cancelAnimationFrame函数用于:
+            //取消一个先前通过调用window.requestAnimationFrame()方法添加到计划中的动画帧请求
+            //alert(this._requestId);
             cancelAnimationFrame( this._requestId );
-            // this._requestId = -1; // 将_requestId设置为-1
+            //this . _requestId = -1 ; // 将_requestId设置为-1
 
             // 在start和stop函数中，_lastTime和_startTime都设置为-1
             this._lastTime = -1;
@@ -257,11 +264,11 @@ export class EventInteraction implements EventListenerObject
         }
     }
 
-    // 虚方法，子类能覆写（override），用于更新
-    // 注意: 第二个参数是秒为单位，第一参数是毫秒为单位
-    public update ( elapsedMsec: number, intervalSec: number): void { }
+    //虚方法，子类能覆写（override），用于更新
+    //注意: 第二个参数是秒为单位，第一参数是毫秒为单位
+    public update ( elapsedMsec: number, intervalSec: number ): void { }
 
-    // 虚方法，子类能覆写（override），用于渲染
+    //虚方法，子类能覆写（override），用于渲染
     public render (): void { }
 
     // 虚函数，子类覆写（overide），用于同步各种资源后启动EventInteraction
@@ -274,7 +281,7 @@ export class EventInteraction implements EventListenerObject
 
     // 调用dispatchXXXX虚方法进行事件分发
     // handleEvent是接口EventListenerObject定义的协议分发，必须要实现
-    public handleEvent (evt: Event): void
+    public handleEvent ( evt: Event ): void
     {
         switch ( evt.type )
         {
@@ -354,7 +361,6 @@ export class EventInteraction implements EventListenerObject
     // 这是一个私有方法，意味着只能在本类中使用,子类和其他类都无法调用本方法
     // 只要是鼠标事件（down / up / move / drag .....）都需要调用本方法
     // 将相对于浏览器viewport表示的点变换到相对于canvas表示的点
-
     private viewportToCanvasCoordinate ( evt: MouseEvent ): Vector2
     {
         // 切记，很重要一点：
@@ -457,7 +463,7 @@ export class EventInteraction implements EventListenerObject
     // 根据id在timers列表中查找
     // 如果找到，则设置timer的enabled为false，并返回true
     // 如没找到，返回false
-    public removeTimer (id: number ): boolean
+    public removeTimer ( id: number ): boolean
     {
         let found: boolean = false;
         for ( let i = 0; i < this.timers.length; i++ )
@@ -522,5 +528,4 @@ export class EventInteraction implements EventListenerObject
             }
         }
     }
-
 }
