@@ -23,6 +23,18 @@ export class Vector2{
         this._y = value;
     }
 
+    get xy(): [number, number] {
+        return [
+            this._x,
+            this._y,
+        ]
+    }
+
+    set xy(values: [number, number]) {
+        this._x = values[0]
+        this._y = values[1]
+    }
+
     public static get zero():Vector2 {
         return new Vector2();
     }

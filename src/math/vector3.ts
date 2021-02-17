@@ -33,6 +33,20 @@ export class Vector3{
         this._z = value;
     }
 
+    get xyz(): [number, number, number] {
+        return [
+            this._x,
+            this._y,
+            this._z,
+        ]
+    }
+
+    set xyz(values: [number, number, number]) {
+        this._x = values[0]
+        this._y = values[1]
+        this._z = values[2]
+    }
+
     public static get zero():Vector3 {
         return new Vector3();
     }

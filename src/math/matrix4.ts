@@ -12,6 +12,14 @@ export class Matrix4{
         }
     }
 
+    public init(values: number[]): Matrix4 {
+        for (let i = 0; i < 16; i++) {
+            this.values[i] = values[i]
+        }
+
+        return this
+    }
+
     private values = new Float32Array(16);
     // static readonly identity = new Matrix4().identity();
 
