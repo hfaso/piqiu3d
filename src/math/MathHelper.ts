@@ -3,7 +3,7 @@ import { Vector3 } from "./vector3";
 import Vector4 from "./vector4";
 import { Matrix4 } from "./matrix4";
 import { EPSILON } from "./constants"
-import { quat } from "./TSM";
+import quat from "./quat";
 import { GeometryData } from "../../lib/Primitives";
 import { GLMeshBuilder } from "../../webgl/WebGLMesh";
 
