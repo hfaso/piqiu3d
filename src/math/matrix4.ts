@@ -9,7 +9,7 @@ export class Matrix4{
             // for (let i = 0; i < 16; i++){
             //     this.values[i] = values[i];
             // }
-            this.identity()
+            this.setIdentity()
         }
     }
 
@@ -24,7 +24,7 @@ export class Matrix4{
     public values = new Float32Array(16);
     // static readonly identity = new Matrix4().identity();
 
-    public identity():Matrix4 {
+    public setIdentity():Matrix4 {
         this.values[0] = 1;
         this.values[1] = 0;
         this.values[2] = 0;
@@ -259,11 +259,20 @@ export class Matrix4{
         return dest;
     }
 
-    // public toMat3()
+    // 矩阵变换
+    public translate ( vector: Vector3 ): Matrix4
+    {
+        let x = vector.x,
+            y = vector.y,
+            z = vector.z;
 
-    // public translate(vec3: Vector3): Matrix4 {
+        this.values[ 12 ] += this.values[ 0 ] * x + this.values[ 4 ] * y + this.values[ 8 ] * z;
+        this.values[ 13 ] += this.values[ 1 ] * x + this.values[ 5 ] * y + this.values[ 9 ] * z;
+        this.values[ 14 ] += this.values[ 2 ] * x + this.values[ 6 ] * y + this.values[ 10 ] * z;
+        this.values[ 15 ] += this.values[ 3 ] * x + this.values[ 7 ] * y + this.values[ 11 ] * z;
 
-    // }
+        return this;
+    }
 
     public scale(x: number, y: number, z:number): Matrix4{
         this.values[0] = x;
@@ -286,6 +295,123 @@ export class Matrix4{
         return this;
     }
 
+    public rotate ( angle: number, axis: Vector3 ): Matrix4 | null
+    {
+        let x = axis.x,
+            y = axis.y,
+            z = axis.z;
+
+        let length = Math.sqrt( x * x + y * y + z * z );
+
+        if ( !length )
+            return null;
+
+        if ( length !== 1 )
+        {
+            length = 1 / length;
+            x *= length;
+            y *= length;
+            z *= length;
+        }
+
+        let s = Math.sin( angle );
+        let c = Math.cos( angle );
+
+        let t = 1.0 - c;
+
+        let a00 = this.values[ 0 ], a01 = this.values[ 1 ], a02 = this.values[ 2 ], a03 = this.values[ 3 ],
+            a10 = this.values[ 4 ], a11 = this.values[ 5 ], a12 = this.values[ 6 ], a13 = this.values[ 7 ],
+            a20 = this.values[ 8 ], a21 = this.values[ 9 ], a22 = this.values[ 10 ], a23 = this.values[ 11 ];
+
+        let b00 = x * x * t + c, b01 = y * x * t + z * s, b02 = z * x * t - y * s,
+            b10 = x * y * t - z * s, b11 = y * y * t + c, b12 = z * y * t + x * s,
+            b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
+
+        this.values[ 0 ] = a00 * b00 + a10 * b01 + a20 * b02;
+        this.values[ 1 ] = a01 * b00 + a11 * b01 + a21 * b02;
+        this.values[ 2 ] = a02 * b00 + a12 * b01 + a22 * b02;
+        this.values[ 3 ] = a03 * b00 + a13 * b01 + a23 * b02;
+
+        this.values[ 4 ] = a00 * b10 + a10 * b11 + a20 * b12;
+        this.values[ 5 ] = a01 * b10 + a11 * b11 + a21 * b12;
+        this.values[ 6 ] = a02 * b10 + a12 * b11 + a22 * b12;
+        this.values[ 7 ] = a03 * b10 + a13 * b11 + a23 * b12;
+
+        this.values[ 8 ] = a00 * b20 + a10 * b21 + a20 * b22;
+        this.values[ 9 ] = a01 * b20 + a11 * b21 + a21 * b22;
+        this.values[ 10 ] = a02 * b20 + a12 * b21 + a22 * b22;
+        this.values[ 11 ] = a03 * b20 + a13 * b21 + a23 * b22;
+
+        return this;
+    }
+
+    // 视矩阵和投影矩阵
+    public static frustum ( left: number, right: number, bottom: number, top: number, near: number, far: number ): Matrix4
+    {
+        let rl = ( right - left ),
+            tb = ( top - bottom ),
+            fn = ( far - near );
+
+        return new Matrix4( [
+            ( near * 2 ) / rl,
+            0,
+            0,
+            0,
+
+            0,
+            ( near * 2 ) / tb,
+            0,
+            0,
+
+            ( right + left ) / rl,
+            ( top + bottom ) / tb,
+            -( far + near ) / fn,
+            -1,
+
+            0,
+            0,
+            -( far * near * 2 ) / fn,
+            0
+        ] );
+    }
+
+    public static perspective ( fov: number, aspect: number, near: number, far: number ): Matrix4
+    {
+        let top = near * Math.tan( fov * 0.5 ),
+            right = top * aspect;
+
+        return Matrix4.frustum( -right, right, -top, top, near, far );
+    }
+
+    public static orthographic ( left: number, right: number, bottom: number, top: number, near: number, far: number ): Matrix4
+    {
+        let rl = ( right - left ),
+            tb = ( top - bottom ),
+            fn = ( far - near );
+
+        return new Matrix4( [
+            2 / rl,
+            0,
+            0,
+            0,
+
+            0,
+            2 / tb,
+            0,
+            0,
+
+            0,
+            0,
+            -2 / fn,
+            0,
+
+            -( left + right ) / rl,
+            -( top + bottom ) / tb,
+            -( far + near ) / fn,
+            1
+        ] );
+    }
+    
     public static lookAt ( position: Vector3, target: Vector3, up: Vector3 = Vector3.up ): Matrix4
     {
         if ( position.equals( target ) )
@@ -320,5 +446,5 @@ export class Matrix4{
         ] );
     }
 
-    public static identity = new Matrix4().identity();
+    public static identity = new Matrix4().setIdentity();
 }

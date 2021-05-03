@@ -60,7 +60,7 @@ export class GLMatrixStack
     {
         let ret: Matrix4 = new Matrix4();
         this.modelViewMatrix.copy( ret );
-        this.modelViewMatrix.inverse( ret );
+        this.modelViewMatrix.inverse();
         ret.transpose();
         return ret;
     }
