@@ -6,6 +6,8 @@ import { EPSILON } from './constants'
 
 export default class quat {
 
+    public values = new Float32Array( 4 );
+
     get x(): number {
         return this.values[0]
     }
@@ -86,7 +88,7 @@ export default class quat {
         }
     }
 
-    private values = new Float32Array(4)
+    // private values = new Float32Array(4)
 
     static readonly identity = new quat().setIdentity()
 

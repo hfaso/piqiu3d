@@ -1,4 +1,5 @@
 import { Vector3 } from "./vector3";
+import Vector4 from "./vector4";
 
 // Matrix4类
 export class Matrix4{
@@ -20,7 +21,7 @@ export class Matrix4{
         return this
     }
 
-    private values = new Float32Array(16);
+    public values = new Float32Array(16);
     // static readonly identity = new Matrix4().identity();
 
     public identity():Matrix4 {
@@ -219,15 +220,44 @@ export class Matrix4{
         return this;
     }
 
-    public multiplyVec3(vec3: Vector3): Vector3 {
-        return new Vector3(
-            this.values[0] * vec3.x + this.values[4] * vec3.y + this.values[8] * vec3.z + this.values[12],
-            this.values[1] * vec3.x + this.values[5] * vec3.y + this.values[9] * vec3.z + this.values[13],
-            this.values[2] * vec3.x + this.values[6] * vec3.y + this.values[10] * vec3.z + this.values[14]
-            )
+    // public multiplyVec3(vec3: Vector3): Vector3 {
+    //     return new Vector3(
+    //         this.values[0] * vec3.x + this.values[4] * vec3.y + this.values[8] * vec3.z + this.values[12],
+    //         this.values[1] * vec3.x + this.values[5] * vec3.y + this.values[9] * vec3.z + this.values[13],
+    //         this.values[2] * vec3.x + this.values[6] * vec3.y + this.values[10] * vec3.z + this.values[14]
+    //         )
+    // }
+
+    public multiplyVec3 ( vector: Vector3, dest: Vector3 | null = null ): Vector3
+    {
+        if ( !dest ) dest = new Vector3();
+        let x = vector.x,
+            y = vector.y,
+            z = vector.z;
+
+        dest.x = this.values[ 0 ] * x + this.values[ 4 ] * y + this.values[ 8 ] * z + this.values[ 12 ];
+        dest.y = this.values[ 1 ] * x + this.values[ 5 ] * y + this.values[ 9 ] * z + this.values[ 13 ];
+        dest.z = this.values[ 2 ] * x + this.values[ 6 ] * y + this.values[ 10 ] * z + this.values[ 14 ];
+
+        return dest;
     }
 
-    // pubic multiplyVec4
+    public multiplyVec4 ( vector: Vector4, dest: Vector4 | null = null ): Vector4
+    {
+        if ( !dest ) dest = new Vector4();
+
+        let x = vector.x,
+            y = vector.y,
+            z = vector.z,
+            w = vector.w;
+
+        dest.x = this.values[ 0 ] * x + this.values[ 4 ] * y + this.values[ 8 ] * z + this.values[ 12 ] * w;
+        dest.y = this.values[ 1 ] * x + this.values[ 5 ] * y + this.values[ 9 ] * z + this.values[ 13 ] * w;
+        dest.z = this.values[ 2 ] * x + this.values[ 6 ] * y + this.values[ 10 ] * z + this.values[ 14 ] * w;
+        dest.w = this.values[ 3 ] * x + this.values[ 7 ] * y + this.values[ 11 ] * z + this.values[ 15 ] * w;
+
+        return dest;
+    }
 
     // public toMat3()
 
@@ -255,4 +285,40 @@ export class Matrix4{
 
         return this;
     }
+
+    public static lookAt ( position: Vector3, target: Vector3, up: Vector3 = Vector3.up ): Matrix4
+    {
+        if ( position.equals( target ) )
+        {
+            return this.identity;
+        }
+
+        let z = Vector3.difference( position, target ).normalize();
+        let x = Vector3.cross( up, z ).normalize();
+        let y = Vector3.cross( z, x ).normalize();
+
+        return new Matrix4( [
+            x.x,
+            y.x,
+            z.x,
+            0,
+
+            x.y,
+            y.y,
+            z.y,
+            0,
+
+            x.z,
+            y.z,
+            z.z,
+            0,
+
+            -Vector3.dot( x, position ),
+            -Vector3.dot( y, position ),
+            -Vector3.dot( z, position ),
+            1
+        ] );
+    }
+
+    public static identity = new Matrix4().identity();
 }

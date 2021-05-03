@@ -4,8 +4,8 @@ import Vector4 from "./vector4";
 import { Matrix4 } from "./matrix4";
 import { EPSILON } from "./constants"
 import quat from "./quat";
-import { GeometryData } from "../../lib/Primitives";
-import { GLMeshBuilder } from "../../webgl/WebGLMesh";
+import { GeometryData } from "../libs/Primitives";
+import { GLMeshBuilder } from "../webgl/WebGLMesh";
 
 export enum EAxisType
 {
@@ -60,7 +60,7 @@ export class MathHelper
 
     public static obj2GLViewportSpace ( localPt: Vector3, mvp: Matrix4, viewport: Int32Array | Float32Array, viewportPt: Vector3 ): boolean
     {
-        let v: Vector4 = new Vector4( [ localPt.x, localPt.y, localPt.z, 1.0 ] );
+        let v: Vector4 = new Vector4( localPt.x, localPt.y, localPt.z, 1.0 );
         mvp.multiplyVec4( v, v ); // 将顶点从local坐标系变换到投影坐标系，或裁剪坐标系
         if ( v.w === 0.0 ) // 如果变换后的w为0，则返回false
         {
@@ -215,17 +215,17 @@ export class MathHelper
         let center: Vector3 = MathHelper.boundBoxGetCenter( mins, maxs ); // 获取中心点
         let maxs2center: Vector3 = Vector3.difference( center, maxs ); // 获取最大点到中心点之间的距离向量
 
-        pts8.push( new Vector3( [ center.x + maxs2center.x, center.y + maxs2center.y, center.z + maxs2center.z ] ) );  // 0
-        pts8.push( new Vector3( [ center.x + maxs2center.x, center.y - maxs2center.y, center.z + maxs2center.z ] ) );  // 1
+        pts8.push( new Vector3( center.x + maxs2center.x, center.y + maxs2center.y, center.z + maxs2center.z ) );  // 0
+        pts8.push( new Vector3( center.x + maxs2center.x, center.y - maxs2center.y, center.z + maxs2center.z ) );  // 1
 
-        pts8.push( new Vector3( [ center.x + maxs2center.x, center.y + maxs2center.y, center.z - maxs2center.z ] ) );  // 2
-        pts8.push( new Vector3( [ center.x + maxs2center.x, center.y - maxs2center.y, center.z - maxs2center.z ] ) );  // 3
+        pts8.push( new Vector3( center.x + maxs2center.x, center.y + maxs2center.y, center.z - maxs2center.z ) );  // 2
+        pts8.push( new Vector3( center.x + maxs2center.x, center.y - maxs2center.y, center.z - maxs2center.z ) );  // 3
 
-        pts8.push( new Vector3( [ center.x - maxs2center.x, center.y + maxs2center.y, center.z + maxs2center.z ] ) );  // 4
-        pts8.push( new Vector3( [ center.x - maxs2center.x, center.y - maxs2center.y, center.z + maxs2center.z ] ) );  // 5
+        pts8.push( new Vector3( center.x - maxs2center.x, center.y + maxs2center.y, center.z + maxs2center.z ) );  // 4
+        pts8.push( new Vector3( center.x - maxs2center.x, center.y - maxs2center.y, center.z + maxs2center.z ) );  // 5
 
-        pts8.push( new Vector3( [ center.x - maxs2center.x, center.y + maxs2center.y, center.z - maxs2center.z ] ) );  // 6
-        pts8.push( new Vector3( [ center.x - maxs2center.x, center.y - maxs2center.y, center.z - maxs2center.z ] ) );  // 7
+        pts8.push( new Vector3( center.x - maxs2center.x, center.y + maxs2center.y, center.z - maxs2center.z ) );  // 6
+        pts8.push( new Vector3( center.x - maxs2center.x, center.y - maxs2center.y, center.z - maxs2center.z ) );  // 7
     }
 
     public static boundBoxTransform ( mat: Matrix4, mins: Vector3, maxs: Vector3 ): void

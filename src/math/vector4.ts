@@ -45,6 +45,46 @@ export default class Vector4 {
         this._w = w
     }
 
+    public get r (): number
+    {
+        return this._x;
+    }
+
+    public get g (): number
+    {
+        return this._y;
+    }
+
+    public get b (): number
+    {
+        return this._z;
+    }
+
+    public get a (): number
+    {
+        return this._w;
+    }
+
+    public set r ( value: number )
+    {
+        this._x = value;
+    }
+
+    public set g ( value: number )
+    {
+        this._y = value;
+    }
+
+    public set b ( value: number )
+    {
+        this._z = value;
+    }
+
+    public set a ( value: number )
+    {
+        this._w = value;
+    }
+
     public constructor(x: number=0, y:number=0, z:number=0, w:number=0) {
         this._x = x;
         this._y = y;
