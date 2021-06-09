@@ -4,7 +4,7 @@ import Vector4 from "./vector4";
 import { Matrix4 } from "./matrix4";
 import { EPSILON } from "./constants"
 import quat from "./quat";
-import { GeometryData } from "../libs/Primitives";
+import { GeometryData } from "../lib/Primitives";
 import { GLMeshBuilder } from "../webgl/WebGLMesh";
 
 export enum EAxisType

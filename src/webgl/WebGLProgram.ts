@@ -1,5 +1,4 @@
 import { GLAttribBits, GLAttribState } from "./WebGLAttribState"
-// import { vec2, vec3, vec4, mat4, quat } from "../common/math/TSM"
 import Vector4 from "../math/vector4";
 import { Vector2 } from "../math/vector2";
 import { Vector3 } from "../math/vector3";

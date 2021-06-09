@@ -6,7 +6,7 @@ import { GLProgramCache } from "./WebGLProgramCache";
 import { GLProgram } from "./WebGLProgram";
 import { GLMeshBuilder } from "./WebGLMesh";
 import { GLAttribState } from "./WebGLAttribState";
-import { GLHelper } from "./WebGLHepler";
+import { GLHelper } from "./WebGLHelper";
 
 export class WebGLApplication extends EventInteraction
 {
