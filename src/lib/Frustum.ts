@@ -1,5 +1,5 @@
 import { Vector3 } from "../math/vector3";
-import vector4 from "../math/vector4";
+import Vector4 from "../math/vector4";
 import { Matrix4 } from "../math/matrix4";
 import { MathHelper } from "../math/MathHelper";
 import {Camera} from "./Camera";
@@ -23,7 +23,7 @@ export class Frustum {
         }
         this._planes = new Array(6);
         for (let i = 0; i < this._planes.length; i++) {
-            this._planes[i] = new Vector3();
+            this._planes[i] = new Vector4();
         }
     }
 
@@ -108,7 +108,7 @@ export class Frustum {
 
     public isTriangleVisible(a: Vector3, b: Vector3, c: Vector3): boolean {
         for (let i: number = 0; i < this._planes.length; i++) {
-            let current: vector4 = this._planes[i];
+            let current: Vector4 = this._planes[i];
             if (MathHelper.planeDistanceFromPoint(current, a) >= 0.0) {
                 continue;
             }
@@ -129,11 +129,11 @@ export class Frustum {
     public get points(): Vector3[] {
         return this._points;
     }
-    public get planes(): Vector3[] {
+    public get planes(): Vector4[] {
         return this._planes;
     }
 
     private _origin: Vector3;  // 原点坐标
     private _points: Vector3[]; // 0-3表示近平面四边形的坐标，4-7表示远平面的四边形坐标，这些顶点坐标的布局，请参考图9.5
-    private _planes: Vector3[]; // 从上述9个顶点不同排列组合后生成的上/下/左/右/远/近六个平面，其法向量都是朝Frustum内部，切记
+    private _planes: Vector4[]; // 从上述9个顶点不同排列组合后生成的上/下/左/右/远/近六个平面，其法向量都是朝Frustum内部，切记
 }

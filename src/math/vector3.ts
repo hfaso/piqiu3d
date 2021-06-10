@@ -259,4 +259,8 @@ export class Vector3{
     static readonly left = new Vector3( -1, 0, 0 );
     static readonly forward = new Vector3( 0, 0, 1 );
     static readonly backward = new Vector3( 0, 0, -1 );
+
+    static v0 = new Vector3( 0, 0, 0 );
+    static v1 = new Vector3( 0, 0, 0 );
+    static v2 = new Vector3( 0, 0, 0 );
 }
