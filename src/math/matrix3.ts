@@ -145,7 +145,7 @@ export default class mat3 {
         let det = a00 * det01 + a01 * det11 + a02 * det21
 
         if (!det) {
-            return null
+            return this
         }
 
         det = 1.0 / det
@@ -379,7 +379,7 @@ export default class mat3 {
         let length = Math.sqrt(x * x + y * y + z * z)
 
         if (!length) {
-            return null
+            return this
         }
 
         if (length !== 1) {

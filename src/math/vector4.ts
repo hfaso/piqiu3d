@@ -145,4 +145,9 @@ export default class Vector4 {
         
         return dest
     }
+
+    static red: Vector4 = new Vector4( 1.0, 0.0, 0.0, 1.0 );
+    static green: Vector4 = new Vector4( 0.0, 1.0, 0.0, 1.0 );
+    static blue: Vector4 = new Vector4( 0.0, 0.0, 1.0, 1.0 );
+    static black: Vector4 = new Vector4( 0,0,0,0 );
 }

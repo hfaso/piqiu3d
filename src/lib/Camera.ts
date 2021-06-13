@@ -183,7 +183,7 @@ export class Camera
         this._calcViewMatrix();
         Matrix4.product( this._projectionMatrix, this._viewMatrix, this._viewProjMatrix );
         this._viewProjMatrix.copy( this._invViewProjMatrix );
-        this._viewProjMatrix.inverse( this._invViewProjMatrix );
+        this._viewProjMatrix.getInverse( this._invViewProjMatrix );
     }
 
     //局部坐标系下的前后运动
@@ -358,7 +358,7 @@ export class Camera
         this._viewMatrix.values[ 15 ] = 1.0;
 
         //求view的逆矩阵，也就是世界矩阵
-        this._viewMatrix.inverse( this._invViewMatrix );
+        this._viewMatrix.getInverse( this._invViewMatrix );
         this._frustum.buildFromCamera( this );
     }
 

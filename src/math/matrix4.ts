@@ -180,6 +180,54 @@ export class Matrix4{
         return this;
     }
 
+    public getInverse ( out: Matrix4 ): boolean
+    {
+        this.copy( out );
+        let a00 = out.values[ 0 ], a01 = out.values[ 1 ], a02 = out.values[ 2 ], a03 = out.values[ 3 ],
+            a10 = out.values[ 4 ], a11 = out.values[ 5 ], a12 = out.values[ 6 ], a13 = out.values[ 7 ],
+            a20 = out.values[ 8 ], a21 = out.values[ 9 ], a22 = out.values[ 10 ], a23 = out.values[ 11 ],
+            a30 = out.values[ 12 ], a31 = out.values[ 13 ], a32 = out.values[ 14 ], a33 = out.values[ 15 ];
+
+        let det00 = a00 * a11 - a01 * a10,
+            det01 = a00 * a12 - a02 * a10,
+            det02 = a00 * a13 - a03 * a10,
+            det03 = a01 * a12 - a02 * a11,
+            det04 = a01 * a13 - a03 * a11,
+            det05 = a02 * a13 - a03 * a12,
+            det06 = a20 * a31 - a21 * a30,
+            det07 = a20 * a32 - a22 * a30,
+            det08 = a20 * a33 - a23 * a30,
+            det09 = a21 * a32 - a22 * a31,
+            det10 = a21 * a33 - a23 * a31,
+            det11 = a22 * a33 - a23 * a32;
+
+        let det = ( det00 * det11 - det01 * det10 + det02 * det09 + det03 * det08 - det04 * det07 + det05 * det06 );
+
+        if ( !det )
+            return false;
+
+        det = 1.0 / det;
+
+        out.values[ 0 ] = ( a11 * det11 - a12 * det10 + a13 * det09 ) * det;
+        out.values[ 1 ] = ( -a01 * det11 + a02 * det10 - a03 * det09 ) * det;
+        out.values[ 2 ] = ( a31 * det05 - a32 * det04 + a33 * det03 ) * det;
+        out.values[ 3 ] = ( -a21 * det05 + a22 * det04 - a23 * det03 ) * det;
+        out.values[ 4 ] = ( -a10 * det11 + a12 * det08 - a13 * det07 ) * det;
+        out.values[ 5 ] = ( a00 * det11 - a02 * det08 + a03 * det07 ) * det;
+        out.values[ 6 ] = ( -a30 * det05 + a32 * det02 - a33 * det01 ) * det;
+        out.values[ 7 ] = ( a20 * det05 - a22 * det02 + a23 * det01 ) * det;
+        out.values[ 8 ] = ( a10 * det10 - a11 * det08 + a13 * det06 ) * det;
+        out.values[ 9 ] = ( -a00 * det10 + a01 * det08 - a03 * det06 ) * det;
+        out.values[ 10 ] = ( a30 * det04 - a31 * det02 + a33 * det00 ) * det;
+        out.values[ 11 ] = ( -a20 * det04 + a21 * det02 - a23 * det00 ) * det;
+        out.values[ 12 ] = ( -a10 * det09 + a11 * det07 - a12 * det06 ) * det;
+        out.values[ 13 ] = ( a00 * det09 - a01 * det07 + a02 * det06 ) * det;
+        out.values[ 14 ] = ( -a30 * det03 + a31 * det01 - a32 * det00 ) * det;
+        out.values[ 15 ] = ( a20 * det03 - a21 * det01 + a22 * det00 ) * det;
+
+        return true;
+    }
+
     public multiply(matrix: Matrix4): Matrix4 {
         const a00 = this.values[0]
         const a01 = this.values[1]
@@ -550,4 +598,7 @@ export class Matrix4{
     }
 
     public static identity = new Matrix4().setIdentity();
+
+    public static m0 = new Matrix4();
+    public static m1 = new Matrix4();
 }
