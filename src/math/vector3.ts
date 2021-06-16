@@ -18,7 +18,7 @@ export class Vector3{
     }
 
     public get y(): number{
-        return this._x;
+        return this._y;
     }
 
     public set y(value:number){
@@ -26,7 +26,7 @@ export class Vector3{
     }
 
     public get z(): number{
-        return this._x;
+        return this._z;
     }
 
     public set z(value:number){
@@ -223,13 +223,13 @@ export class Vector3{
 
     public static dot ( vector: Vector3, vector2: Vector3 ): number
     {
-        let x = vector.x,
-            y = vector.y,
-            z = vector.z;
+        let x = vector._x,
+            y = vector._y,
+            z = vector._z;
 
-        let x2 = vector2.x,
-            y2 = vector2.y,
-            z2 = vector2.z;
+        let x2 = vector2._x,
+            y2 = vector2._y,
+            z2 = vector2._z;
 
         return ( x * x2 + y * y2 + z * z2 );
     }
@@ -238,13 +238,13 @@ export class Vector3{
     {
         if ( !dest ) dest = new Vector3();
 
-        let x = vector.x,
-            y = vector.y,
-            z = vector.z;
+        let x = vector._x,
+            y = vector._y,
+            z = vector._z;
 
-        let x2 = vector2.x,
-            y2 = vector2.y,
-            z2 = vector2.z;
+        let x2 = vector2._x,
+            y2 = vector2._y,
+            z2 = vector2._z;
 
         dest._x = y * z2 - z * y2;
         dest._y = z * x2 - x * z2;

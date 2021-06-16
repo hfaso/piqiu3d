@@ -5,11 +5,13 @@ import Vector4 from "./vector4";
 export class Matrix4{
     
     constructor(values?:number[]) {
-        if (values !== undefined) {
-            // for (let i = 0; i < 16; i++){
-            //     this.values[i] = values[i];
-            // }
-            this.setIdentity()
+        if ( values )
+        {
+            this.set( values );
+        }
+        else
+        {
+            this.setIdentity();
         }
     }
 
