@@ -1,12 +1,8 @@
 import { GLAttribBits, GLAttribState } from "./WebGLAttribState"
-import Vector4 from "../math/vector4";
-import { Vector2 } from "../math/vector2";
-import { Vector3 } from "../math/vector3";
-import { Matrix4 } from "../math/matrix4";
+import { vec2, vec3, vec4, mat4, quat } from "../common/math/TSM"
 import { GLTexture } from "./WebGLTexture";
-import quat from "../math/quat";
 import { GLShaderSource } from "./WebGLShaderSource";
-import { GLHelper, EShaderType, GLAttribMap, GLUniformMap } from "./WebGLHelper";
+import { GLHelper, EShaderType, GLAttribMap, GLUniformMap } from "./WebGLHepler";
 /*
 比较特别的是Texture Unit
 glActiveTexture 激活某个TextureUnit
@@ -266,37 +262,34 @@ export class GLProgram
         return false;
     }
 
-    public setVector2 ( name: string, v2: Vector2 ): boolean
+    public setVector2 ( name: string, v2: vec2 ): boolean
     {
         let loc: WebGLUniformLocation | null = this.getUniformLocation( name );
         if ( loc )
         {
-            // this.gl.uniform2fv( loc, v2.values );
-            this.gl.uniform2fv( loc, [v2.x, v2.y] );
+            this.gl.uniform2fv( loc, v2.values );
             return true;
         }
         return false;
     }
 
-    public setVector3 ( name: string, v3: Vector3 ): boolean
+    public setVector3 ( name: string, v3: vec3 ): boolean
     {
         let loc: WebGLUniformLocation | null = this.getUniformLocation( name );
         if ( loc )
         {
-            // this.gl.uniform3fv( loc, v3.values );
-            this.gl.uniform3fv( loc, [v3.x, v3.y, v3.z] );
+            this.gl.uniform3fv( loc, v3.values );
             return true;
         }
         return false;
     }
 
-    public setVector4 ( name: string, v4: Vector4 ): boolean
+    public setVector4 ( name: string, v4: vec4 ): boolean
     {
         let loc: WebGLUniformLocation | null = this.getUniformLocation( name );
         if ( loc )
         {
-            // this.gl.uniform4fv( loc, v4.values );
-            this.gl.uniform4fv( loc, [v4.x, v4.y, v4.z, v4.w] );
+            this.gl.uniform4fv( loc, v4.values );
             return true;
         }
         return false;
@@ -313,7 +306,7 @@ export class GLProgram
         return false;
     }
 
-    public setMatrix3 ( name: string, mat: Matrix4 ): boolean
+    public setMatrix3 ( name: string, mat: mat4 ): boolean
     {
         let loc: WebGLUniformLocation | null = this.getUniformLocation( name );
         if ( loc )
@@ -324,7 +317,7 @@ export class GLProgram
         return false;
     }
 
-    public setMatrix4 ( name: string, mat: Matrix4 ): boolean
+    public setMatrix4 ( name: string, mat: mat4 ): boolean
     {
         let loc: WebGLUniformLocation | null = this.getUniformLocation( name );
         if ( loc )
@@ -346,7 +339,7 @@ export class GLProgram
         return false;
     }
 
-    public loadModeViewMatrix ( mat: Matrix4 ): boolean
+    public loadModeViewMatrix ( mat: mat4 ): boolean
     {
         return this.setMatrix4( GLProgram.MVMatrix, mat );
     }

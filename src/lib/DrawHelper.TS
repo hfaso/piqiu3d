@@ -1,19 +1,17 @@
-import {Vector3} from "../math/vector3"
-import {Matrix4} from "../math/matrix4"
-import Vector4 from "../math/vector4"
+import { vec3, mat4, vec4 } from "../common/math/TSM";
 import { TypedArrayList } from "../common/container/TypedArrayList";
-import { EAxisType } from "../math/MathHelper";
+import { EAxisType } from "../common/math/MathHelper";
 import { GLMeshBuilder } from "../webgl/WebGLMesh";
 export class CoordSystem
 {
     public viewport: number[] = []; // 当前坐标系被绘制在哪个视口中
-    public axis: Vector3; // 当前坐标系绕哪个轴旋转
+    public axis: vec3; // 当前坐标系绕哪个轴旋转
     public angle: number; // 当前坐标系的旋转的角度(不是弧度！)
-    public pos: Vector3; // 当前坐标系的位置，如果是多视口渲染的话，就为[0,0,0]
+    public pos: vec3; // 当前坐标系的位置，如果是多视口渲染的话，就为[0,0,0]
     public isDrawAxis: boolean; // 是否绘制旋转轴
     public isD3D: boolean; // 是否绘制为D3D左手系
 
-    public constructor ( viewport: number[], pos: Vector3 = Vector3.zero, axis: Vector3 = Vector3.up, angle: number = 0, isDrawAxis: boolean = false, isD3D: boolean = false )
+    public constructor ( viewport: number[], pos: vec3 = vec3.zero, axis: vec3 = vec3.up, angle: number = 0, isDrawAxis: boolean = false, isD3D: boolean = false )
     {
         this.viewport = viewport;
         this.angle = angle;
@@ -26,7 +24,7 @@ export class CoordSystem
 
 export class DrawHelper
 {
-    public static defaultHitCollor: Vector4 = new Vector4( 1, 1, 0 );
+    public static defaultHitCollor: vec4 = new vec4( [ 1, 1, 0 ] );
 
     public static getCirclePointsOnXYPlane ( pts: TypedArrayList<Float32Array>, radius: number, segment: number = 32 ): void
     {
@@ -42,7 +40,7 @@ export class DrawHelper
         }
     }
 
-    public static drawFullCoordSystem ( builder: GLMeshBuilder, mat: Matrix4, len: number = 1, rotateAxis: Vector3 | null = null ): void
+    public static drawFullCoordSystem ( builder: GLMeshBuilder, mat: mat4, len: number = 1, rotateAxis: vec3 | null = null ): void
     {
         builder.gl.lineWidth( 5 ); // 用5个像素大小的直径绘制线段，但目前仅Safari浏览器实现
         builder.gl.disable( builder.gl.DEPTH_TEST ); // 关闭帧缓存深度测试
@@ -82,7 +80,7 @@ export class DrawHelper
         if ( rotateAxis !== null )
         {
             // 如果要绘制旋转轴，则绘制出来
-            let scale: Vector3 = rotateAxis.scale( len );
+            let scale: vec3 = rotateAxis.scale( len );
             builder.color( 0.0, 0.0, 0.0 ).vertex( 0, 0, 0 );
             builder.color( 0.0, 0.0, 0.0 ).vertex( scale.x, scale.y, scale.z );
         }
@@ -91,7 +89,7 @@ export class DrawHelper
         builder.gl.enable( builder.gl.DEPTH_TEST ); // 恢复开始帧缓存深度测试
     }
 
-    public static drawCoordSystem ( builder: GLMeshBuilder, mat: Matrix4, hitAxis: EAxisType, len: number = 5, rotateAxis: Vector3 | null = null, isLeftHandness: boolean = false ): void
+    public static drawCoordSystem ( builder: GLMeshBuilder, mat: mat4, hitAxis: EAxisType, len: number = 5, rotateAxis: vec3 | null = null, isLeftHandness: boolean = false ): void
     {
         builder.gl.lineWidth( 5 );
         builder.gl.disable( builder.gl.DEPTH_TEST );
@@ -141,7 +139,7 @@ export class DrawHelper
 
         if ( rotateAxis !== null )
         {
-            let scale: Vector3 = rotateAxis.scale( len );
+            let scale: vec3 = rotateAxis.scale( len );
             builder.color( 0.0, 0.0, 0 ).vertex( 0, 0, 0 );
             if ( isLeftHandness === true )
             {
@@ -170,7 +168,7 @@ export class DrawHelper
     */
     // 根据mins点（上图中的顶点2，左下后）和maxs（上图中的顶点5，右上前）点的坐标，使用参数指定的颜色绘制线框绑定盒，它是一个立方体
     // GLMeshBuilder的begin / end被调用了三次
-    public static drawBoundBox ( builder: GLMeshBuilder, mat: Matrix4, mins: Vector3, maxs: Vector3, color: Vector4 = Vector4.red ): void
+    public static drawBoundBox ( builder: GLMeshBuilder, mat: mat4, mins: vec3, maxs: vec3, color: vec4 = vec4.red ): void
     {
         builder.gl.disable( builder.gl.DEPTH_TEST );
         // 使用LINE_LOOP绘制底面，注意顶点顺序，逆时针方向，根据右手螺旋定则可知，法线朝外
@@ -212,10 +210,10 @@ export class DrawHelper
         builder.gl.enable( builder.gl.DEPTH_TEST );
     }
 
-    public static drawWireFrameCubeBox ( builder: GLMeshBuilder, mat: Matrix4, halfLen: number = 0.2, color: Vector4 = Vector4.red ): void
+    public static drawWireFrameCubeBox ( builder: GLMeshBuilder, mat: mat4, halfLen: number = 0.2, color: vec4 = vec4.red ): void
     {
-        let mins: Vector3 = new Vector3( -halfLen, -halfLen, -halfLen );
-        let maxs: Vector3 = new Vector3( halfLen, halfLen, halfLen );
+        let mins: vec3 = new vec3( [ -halfLen, -halfLen, -halfLen ] );
+        let maxs: vec3 = new vec3( [ halfLen, halfLen, halfLen ] );
         DrawHelper.drawBoundBox( builder, mat, mins, maxs, color );
     }
 
@@ -230,7 +228,7 @@ export class DrawHelper
        |/        | /
        0---------4/
    */
-    public static drawTextureCubeBox ( builder: GLMeshBuilder, mat: Matrix4, halfLen: number = 0.2, tc: number[] = [
+    public static drawTextureCubeBox ( builder: GLMeshBuilder, mat: mat4, halfLen: number = 0.2, tc: number[] = [
         0, 0, 1, 0, 1, 1, 0, 1,  // 前面
         0, 0, 1, 0, 1, 1, 0, 1,  // 右面
         0, 0, 1, 0, 1, 1, 0, 1,  // 后面
@@ -286,7 +284,7 @@ export class DrawHelper
     
 
     // 其中参数pts是Frustum.points返回的包含8个顶点的数组
-    public static drawWireFrameFrustum ( builder: GLMeshBuilder, mat: Matrix4, pts: Vector3[], color: Vector4 = Vector4.red ): void
+    public static drawWireFrameFrustum ( builder: GLMeshBuilder, mat: mat4, pts: vec3[], color: vec4 = vec4.red ): void
     {
         builder.gl.disable( builder.gl.DEPTH_TEST );
         // 使用LINE_LOOP绘制近平面的四边形

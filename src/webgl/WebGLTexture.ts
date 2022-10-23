@@ -1,4 +1,4 @@
-import { GLHelper } from "./WebGLHelper";
+import { GLHelper } from "./WebGLHepler";
 
 export enum EGLTexWrapType
 {

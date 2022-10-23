@@ -1,18 +1,16 @@
-import { Vector2 } from "../math/vector2";
-import { Vector3 } from "../math/vector3";
-import Vector4 from "../math/vector4";
+import { vec2, vec3, vec4, mat4 } from "../common/math/TSM";
 import { GLAttribBits, GLAttribState } from "../webgl/WebGLAttribState";
 import { GLStaticMesh } from "../webgl/WebGLMesh"
-import { MathHelper } from "../math/MathHelper";
+import { MathHelper } from "../common/math/MathHelper";
 
 export class GeometryData
 {
     // 输入顶点属性数据
-    public positions: Vector3[] = [];
-    public uvs: Vector2[] = [];
-    public normals: Vector3[] = [];
-    public colors: Vector4[] = [];
-    public tangents: Vector4[] = [];
+    public positions: vec3[] = [];
+    public uvs: vec2[] = [];
+    public normals: vec3[] = [];
+    public colors: vec4[] = [];
+    public tangents: vec4[] = [];
     public indices: number[] = [];
 
     public makeStaticVAO ( gl: WebGLRenderingContext, needNormals: boolean = false, needUV: boolean = true ): GLStaticMesh
@@ -74,7 +72,7 @@ export class GeometryData
         return mesh;
     }
 
-    public buildBoundingBoxTo ( mins: Vector3, maxs: Vector3 ): void
+    public buildBoundingBoxTo ( mins: vec3, maxs: vec3 ): void
     {
         for ( let i: number = 0; i < this.positions.length; i++ )
         {
@@ -139,15 +137,15 @@ export class Cube
     {
         let data: GeometryData = new GeometryData();
         data.positions = [
-            new Vector3( -this.halfWidth, -this.halfHeight, this.halfDepth ), // 0
-            new Vector3( this.halfWidth, -this.halfHeight, this.halfDepth ),  // 4
-            new Vector3( this.halfWidth, this.halfHeight, this.halfDepth ),  // 5
+            new vec3( [ -this.halfWidth, -this.halfHeight, this.halfDepth ] ), // 0
+            new vec3( [ this.halfWidth, -this.halfHeight, this.halfDepth ] ),  // 4
+            new vec3( [ this.halfWidth, this.halfHeight, this.halfDepth ] ),  // 5
 
         ];
         data.uvs = [
-            new Vector2( 0, 0 ),
-            new Vector2( 1, 0 ),
-            new Vector2( 1, 1 ),
+            new vec2( [ 0, 0 ] ),
+            new vec2( [ 1, 0 ] ),
+            new vec2( [ 1, 1 ] ),
         ];
         return data;
     }
@@ -155,29 +153,29 @@ export class Cube
     public makeGeometryData (): GeometryData
     {
         let data: GeometryData = new GeometryData();
-        data.positions.push( new Vector3( -this.halfWidth, -this.halfHeight, this.halfDepth ) ); // 0
-        data.uvs.push( new Vector2( 1, 0 ) );
+        data.positions.push( new vec3( [ -this.halfWidth, -this.halfHeight, this.halfDepth ] ) ); // 0
+        data.uvs.push( new vec2( [ 1, 0 ] ) );
 
-        data.positions.push( new Vector3( -this.halfWidth, this.halfHeight, this.halfDepth ) ); // 1
-        data.uvs.push( new Vector2( 1, 1 ) );
+        data.positions.push( new vec3( [ -this.halfWidth, this.halfHeight, this.halfDepth ] ) ); // 1
+        data.uvs.push( new vec2( [ 1, 1 ] ) );
 
-        data.positions.push( new Vector3( -this.halfWidth, -this.halfHeight, -this.halfDepth ) ); // 2
-        data.uvs.push( new Vector2( 0, 0 ) );
+        data.positions.push( new vec3( [ -this.halfWidth, -this.halfHeight, -this.halfDepth ] ) ); // 2
+        data.uvs.push( new vec2( [ 0, 0 ] ) );
 
-        data.positions.push( new Vector3( -this.halfWidth, this.halfHeight, -this.halfDepth ) ); // 3
-        data.uvs.push( new Vector2( 0, 1 ) );
+        data.positions.push( new vec3( [ -this.halfWidth, this.halfHeight, -this.halfDepth ] ) ); // 3
+        data.uvs.push( new vec2( [ 0, 1 ] ) );
 
-        data.positions.push( new Vector3( this.halfWidth, -this.halfHeight, this.halfDepth ) ); // 4
-        data.uvs.push( new Vector2( 0, 0 ) );
+        data.positions.push( new vec3( [ this.halfWidth, -this.halfHeight, this.halfDepth ] ) ); // 4
+        data.uvs.push( new vec2( [ 0, 0 ] ) );
 
-        data.positions.push( new Vector3( this.halfWidth, this.halfHeight, this.halfDepth ) );  // 5
-        data.uvs.push( new Vector2( 0, 1 ) );
+        data.positions.push( new vec3( [ this.halfWidth, this.halfHeight, this.halfDepth ] ) );  // 5
+        data.uvs.push( new vec2( [ 0, 1 ] ) );
 
-        data.positions.push( new Vector3( this.halfWidth, -this.halfHeight, -this.halfDepth ) ); // 6
-        data.uvs.push( new Vector2( 1, 0 ) );
+        data.positions.push( new vec3( [ this.halfWidth, -this.halfHeight, -this.halfDepth ] ) ); // 6
+        data.uvs.push( new vec2( [ 1, 0 ] ) );
 
-        data.positions.push( new Vector3( this.halfWidth, this.halfHeight, -this.halfDepth ) );  // 7
-        data.uvs.push( new Vector2( 1, 1 ) );
+        data.positions.push( new vec3( [ this.halfWidth, this.halfHeight, -this.halfDepth ] ) );  // 7
+        data.uvs.push( new vec2( [ 1, 1 ] ) );
 
         // 法线朝外
         data.indices.push( 0, 1, 3, 0, 3, 2 ); // 左面
@@ -216,9 +214,9 @@ export class GridPlane
                 let v: number = iy / this.ny;
                 let x: number = -this.sx / 2 + u * this.sx; // starts on the left
                 let y: number = this.sy / 2 - v * this.sy; // starts at the top
-                data.positions.push( new Vector3( x, y, 0 ) );
-                data.uvs.push( new Vector2( u, 1.0 - v ) );
-                data.normals.push( new Vector3( 0, 0, 1 ) );
+                data.positions.push( new vec3( [ x, y, 0 ] ) );
+                data.uvs.push( new vec2( [ u, 1.0 - v ] ) );
+                data.normals.push( new vec3( [ 0, 0, 1 ] ) );
                 if ( iy < this.ny && ix < this.nx )
                 {
                     {

@@ -1,14 +1,14 @@
-import {Vector3} from "../math/vector3"
+import { vec3, mat4, vec4 } from "../common/math/TSM";
 export class GLCoordSystem
 {
     public viewport: number[] = [];   // 当前坐标系被绘制在哪个视口中
-    public axis: Vector3;                // 当前坐标系绕哪个轴旋转
+    public axis: vec3;                // 当前坐标系绕哪个轴旋转
     public angle: number;             // 当前坐标系的旋转的角度(不是弧度！)
-    public pos: Vector3;                 // 当前坐标系的位置，如果是多视口渲染的话，就为[0,0,0]
+    public pos: vec3;                 // 当前坐标系的位置，如果是多视口渲染的话，就为[0,0,0]
     public isDrawAxis: boolean;       // 是否绘制旋转轴
     public isD3D: boolean;            // 是否绘制为D3D左手系
 
-    public constructor ( viewport: number[], pos: Vector3 = Vector3.zero, axis: Vector3 = Vector3.up, angle: number = 0, isDrawAxis: boolean = false, isD3D: boolean = false )
+    public constructor ( viewport: number[], pos: vec3 = vec3.zero, axis: vec3 = vec3.up, angle: number = 0, isDrawAxis: boolean = false, isD3D: boolean = false )
     {
         this.viewport = viewport;
         this.angle = angle;

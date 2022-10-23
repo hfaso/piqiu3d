@@ -1,4 +1,4 @@
-import { EventInteraction } from "../common/EventInteraction";
+import { Application } from "../common/Application";
 import { GLMatrixStack, GLWorldMatrixStack } from "./WebGLMatrixStack";
 import { GLTexture } from "./WebGLTexture";
 import { GLTextureCache } from "./WebGLTextureCache";
@@ -6,9 +6,9 @@ import { GLProgramCache } from "./WebGLProgramCache";
 import { GLProgram } from "./WebGLProgram";
 import { GLMeshBuilder } from "./WebGLMesh";
 import { GLAttribState } from "./WebGLAttribState";
-import { GLHelper } from "./WebGLHelper";
+import { GLHelper } from "./WebGLHepler";
 
-export class WebGLApplication extends EventInteraction
+export class WebGLApplication extends Application
 {
     // 可以直接操作WebGL相关内容
     public gl: WebGLRenderingContext;
@@ -98,7 +98,7 @@ export class WebGLApplication extends EventInteraction
     }
 }
 
-export class WebGL2Application extends EventInteraction
+export class WebGL2Application extends Application
 {
     public gl: WebGLRenderingContext;
 

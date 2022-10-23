@@ -1,29 +1,27 @@
-import { Vector3 } from "../math/vector3";
-import Vector4 from "../math/vector4";
-import { Matrix4 } from "../math/matrix4";
-import { MathHelper } from "../math/MathHelper";
+import { vec3, vec4 } from "../common/math/TSM";
+import { MathHelper } from "../common/math/MathHelper";
 import {Camera} from "./Camera";
 
 export class Frustum {
 
-    public constructor(orgin:Vector3 | null = null,points8:Vector3[] | null = null) {
+    public constructor(orgin:vec3 | null = null,points8:vec3[] | null = null) {
         //预先内存分配8个点
         if(orgin !== null){
             this._origin = orgin;
         }else{
-            this._origin = new Vector3();
+            this._origin = new vec3();
         }
         if(points8 !== null && points8.length === 8){
             this._points = points8;
         }else{
             this._points = new Array(8);
             for (let i = 0; i < this._points.length; i++) {
-                this._points[i] = new Vector3();
+                this._points[i] = new vec3();
             }
         }
         this._planes = new Array(6);
         for (let i = 0; i < this._planes.length; i++) {
-            this._planes[i] = new Vector4();
+            this._planes[i] = new vec4();
         }
     }
 
@@ -83,7 +81,7 @@ export class Frustum {
         }
     }
 
-    public isSphereVisible(center: Vector3, radius: number): boolean {
+    public isSphereVisible(center: vec3, radius: number): boolean {
         radius = -radius;
         for (let i: number = 0; i < this._planes.length; i++) {
             if (MathHelper.planeDistanceFromPoint(this._planes[i], center) < radius) {
@@ -93,22 +91,22 @@ export class Frustum {
         return true;
     }
 
-    public isBoundBoxVisible(mins: Vector3, maxs: Vector3): boolean {
+    public isBoundBoxVisible(mins: vec3, maxs: vec3): boolean {
         for (let i = 0; i < this._planes.length; i++) {
             let current = this._planes[i];
-            Vector3.v0.x = (current.x > 0.0) ? maxs.x : mins.x;
-            Vector3.v0.y = (current.y > 0.0) ? maxs.y : mins.y;
-            Vector3.v0.z = (current.z > 0.0) ? maxs.z : mins.z;
-            if (MathHelper.planeDistanceFromPoint(current, Vector3.v0) < 0.0) {
+            vec3.v0.x = (current.x > 0.0) ? maxs.x : mins.x;
+            vec3.v0.y = (current.y > 0.0) ? maxs.y : mins.y;
+            vec3.v0.z = (current.z > 0.0) ? maxs.z : mins.z;
+            if (MathHelper.planeDistanceFromPoint(current, vec3.v0) < 0.0) {
                 return false;
             }
         }
         return true;
     }
 
-    public isTriangleVisible(a: Vector3, b: Vector3, c: Vector3): boolean {
+    public isTriangleVisible(a: vec3, b: vec3, c: vec3): boolean {
         for (let i: number = 0; i < this._planes.length; i++) {
-            let current: Vector4 = this._planes[i];
+            let current: vec4 = this._planes[i];
             if (MathHelper.planeDistanceFromPoint(current, a) >= 0.0) {
                 continue;
             }
@@ -123,17 +121,17 @@ export class Frustum {
         return true;
     }
 
-    public get origin(): Vector3 {
+    public get origin(): vec3 {
         return this._origin;
     }
-    public get points(): Vector3[] {
+    public get points(): vec3[] {
         return this._points;
     }
-    public get planes(): Vector4[] {
+    public get planes(): vec4[] {
         return this._planes;
     }
 
-    private _origin: Vector3;  // 原点坐标
-    private _points: Vector3[]; // 0-3表示近平面四边形的坐标，4-7表示远平面的四边形坐标，这些顶点坐标的布局，请参考图9.5
-    private _planes: Vector4[]; // 从上述9个顶点不同排列组合后生成的上/下/左/右/远/近六个平面，其法向量都是朝Frustum内部，切记
+    private _origin: vec3;  // 原点坐标
+    private _points: vec3[]; // 0-3表示近平面四边形的坐标，4-7表示远平面的四边形坐标，这些顶点坐标的布局，请参考图9.5
+    private _planes: vec4[]; // 从上述9个顶点不同排列组合后生成的上/下/左/右/远/近六个平面，其法向量都是朝Frustum内部，切记
 }

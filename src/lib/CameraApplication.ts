@@ -1,5 +1,5 @@
 import { WebGLApplication } from "../webgl/WebGLApplication";
-import { CanvasKeyBoardEvent } from "../common/EventInteraction";
+import { CanvasKeyBoardEvent } from "../common/Application";
 import { Camera } from "./Camera";
 
 export class CameraApplication extends WebGLApplication

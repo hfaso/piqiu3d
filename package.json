@@ -1,5 +1,5 @@
 {
-  "name": "piqiu3D",
+  "name": "webglapp",
   "version": "1.0.0",
   "description": "",
   "main": "index.html",
@@ -9,17 +9,8 @@
     "watch": "node_modules/.bin/webpack --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hfaso/piqiu3d.git"
-  },
-  "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/hfaso/piqiu3d/issues"
-  },
-  "homepage": "https://github.com/hfaso/piqiu3d#readme",
   "devDependencies": {
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.4",

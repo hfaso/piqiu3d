@@ -1,6 +1,5 @@
-import { Vector3 } from "../math/vector3";
-import { Matrix4 } from "../math/matrix4";
-import { MathHelper } from "../math/MathHelper";
+import { vec3, mat4,  vec4 } from "../common/math/TSM";
+import { MathHelper } from "../common/math/MathHelper";
 import { Frustum} from "./Frustum";
 export enum ECameraType {
     FPSCAMERA,
@@ -49,12 +48,12 @@ export class Camera
         this._aspectRatio = value;
     }
 
-    public get position (): Vector3
+    public get position (): vec3
     {
         return this._position;
     }
 
-    public set position ( value: Vector3 )
+    public set position ( value: vec3 )
     {
         this._position = value;
     }
@@ -103,17 +102,17 @@ export class Camera
         return this._position.z;
     }
 
-    public get xAxis (): Vector3
+    public get xAxis (): vec3
     {
         return this._xAxis;
     }
 
-    public get yAxis (): Vector3
+    public get yAxis (): vec3
     {
         return this._yAxis;
     }
 
-    public get zAxis (): Vector3
+    public get zAxis (): vec3
     {
         return this._zAxis;
     }
@@ -169,21 +168,21 @@ export class Camera
         this._left = -this._right;
         this._frustum = new Frustum();
 
-        this._projectionMatrix = new Matrix4();
-        this._viewMatrix = new Matrix4();
-        this._invViewMatrix = new Matrix4();
-        this._viewProjMatrix = new Matrix4();
-        this._invViewProjMatrix = new Matrix4();
+        this._projectionMatrix = new mat4();
+        this._viewMatrix = new mat4();
+        this._invViewMatrix = new mat4();
+        this._viewProjMatrix = new mat4();
+        this._invViewProjMatrix = new mat4();
         this.controlByMouse = false;
     }
 
     public update ( intervalSec: number ): void
     {
-        this._projectionMatrix = Matrix4.perspective( this.fovY, this.aspectRatio, this.near, this.far );
+        this._projectionMatrix = mat4.perspective( this.fovY, this.aspectRatio, this.near, this.far );
         this._calcViewMatrix();
-        Matrix4.product( this._projectionMatrix, this._viewMatrix, this._viewProjMatrix );
+        mat4.product( this._projectionMatrix, this._viewMatrix, this._viewProjMatrix );
         this._viewProjMatrix.copy( this._invViewProjMatrix );
-        this._viewProjMatrix.getInverse( this._invViewProjMatrix );
+        this._viewProjMatrix.inverse( this._invViewProjMatrix );
     }
 
     //局部坐标系下的前后运动
@@ -233,28 +232,28 @@ export class Camera
     //局部坐标轴的左右旋转
     public yaw ( angle: number ): void
     {
-        Matrix4.m0.setIdentity();
+        mat4.m0.setIdentity();
         angle = MathHelper.toRadian( angle );
         if ( this._type === ECameraType.FPSCAMERA )
         {
-            Matrix4.m0.rotate( angle, Vector3.up );
+            mat4.m0.rotate( angle, vec3.up );
         } else
         {
-            Matrix4.m0.rotate( angle, this._yAxis );
+            mat4.m0.rotate( angle, this._yAxis );
         }
 
-        Matrix4.m0.multiplyVec3( this._zAxis, this._zAxis );
-        Matrix4.m0.multiplyVec3( this._xAxis, this._xAxis );
+        mat4.m0.multiplyVec3( this._zAxis, this._zAxis );
+        mat4.m0.multiplyVec3( this._xAxis, this._xAxis );
     }
 
     //局部坐标轴的上下旋转
     public pitch ( angle: number ): void
     {
-        Matrix4.m0.setIdentity();
+        mat4.m0.setIdentity();
         angle = MathHelper.toRadian( angle );
-        Matrix4.m0.rotate( angle, this._xAxis );
-        Matrix4.m0.multiplyVec3( this._yAxis, this._yAxis );
-        Matrix4.m0.multiplyVec3( this._zAxis, this._zAxis );
+        mat4.m0.rotate( angle, this._xAxis );
+        mat4.m0.multiplyVec3( this._yAxis, this._yAxis );
+        mat4.m0.multiplyVec3( this._zAxis, this._zAxis );
     }
 
     //局部坐标轴的滚转
@@ -263,18 +262,18 @@ export class Camera
         if ( this._type === ECameraType.FLYCAMERA )
         {
             angle = MathHelper.toRadian( angle );
-            Matrix4.m0.setIdentity();
-            Matrix4.m0.rotate( angle, this._zAxis );
-            Matrix4.m0.multiplyVec3( this._xAxis, this._xAxis );
-            Matrix4.m0.multiplyVec3( this._yAxis, this._yAxis );
+            mat4.m0.setIdentity();
+            mat4.m0.rotate( angle, this._zAxis );
+            mat4.m0.multiplyVec3( this._xAxis, this._xAxis );
+            mat4.m0.multiplyVec3( this._yAxis, this._yAxis );
         }
     }
 
     //从当前postition和target获得view矩阵
     //并且从view矩阵抽取forward,up,right方向矢量
-    public lookAt ( target: Vector3, up: Vector3 = Vector3.up ): void
+    public lookAt ( target: vec3, up: vec3 = vec3.up ): void
     {
-        this._viewMatrix = Matrix4.lookAt( this._position, target, up );
+        this._viewMatrix = mat4.lookAt( this._position, target, up );
 
         this._xAxis.x = this._viewMatrix.values[ 0 ];
         this._yAxis.x = this._viewMatrix.values[ 1 ];
@@ -289,27 +288,27 @@ export class Camera
         this._zAxis.z = this._viewMatrix.values[ 10 ];
     }
 
-    public get viewMatrix (): Matrix4
+    public get viewMatrix (): mat4
     {
         return this._viewMatrix;
     }
 
-    public get invViewMatrix (): Matrix4
+    public get invViewMatrix (): mat4
     {
         return this._invViewMatrix;
     }
 
-    public get projectionMatrix (): Matrix4
+    public get projectionMatrix (): mat4
     {
         return this._projectionMatrix;
     }
 
-    public get viewProjectionMatrix (): Matrix4
+    public get viewProjectionMatrix (): mat4
     {
         return this._viewProjMatrix;
     }
 
-    public get invViewProjectionMatrix (): Matrix4
+    public get invViewProjectionMatrix (): mat4
     {
         return this._invViewProjMatrix;
     }
@@ -326,16 +325,16 @@ export class Camera
         this._zAxis.normalize();
 
         //forward cross right = up
-        Vector3.cross( this._zAxis, this._xAxis, this._yAxis );
+        vec3.cross( this._zAxis, this._xAxis, this._yAxis );
         this._yAxis.normalize();
 
         //up cross forward = right
-        Vector3.cross( this._yAxis, this._zAxis, this._xAxis );
+        vec3.cross( this._yAxis, this._zAxis, this._xAxis );
         this._xAxis.normalize();
 
-        let x: number = -Vector3.dot( this._xAxis, this._position );
-        let y: number = -Vector3.dot( this._yAxis, this._position );
-        let z: number = -Vector3.dot( this._zAxis, this._position );
+        let x: number = -vec3.dot( this._xAxis, this._position );
+        let y: number = -vec3.dot( this._yAxis, this._position );
+        let z: number = -vec3.dot( this._zAxis, this._position );
 
         this._viewMatrix.values[ 0 ] = this._xAxis.x;
         this._viewMatrix.values[ 1 ] = this._yAxis.x;
@@ -358,16 +357,16 @@ export class Camera
         this._viewMatrix.values[ 15 ] = 1.0;
 
         //求view的逆矩阵，也就是世界矩阵
-        this._viewMatrix.getInverse( this._invViewMatrix );
+        this._viewMatrix.inverse( this._invViewMatrix );
         this._frustum.buildFromCamera( this );
     }
 
     private _type: ECameraType = ECameraType.FLYCAMERA;
 
-    private _position: Vector3 = new Vector3();
-    private _xAxis: Vector3 = new Vector3( 1, 0, 0 );
-    private _yAxis: Vector3 = new Vector3( 0, 1, 0 );
-    private _zAxis: Vector3 = new Vector3( 0, 0, 1 );
+    private _position: vec3 = new vec3();
+    private _xAxis: vec3 = new vec3( [ 1, 0, 0 ] );
+    private _yAxis: vec3 = new vec3( [ 0, 1, 0 ] );
+    private _zAxis: vec3 = new vec3( [ 0, 0, 1 ] );
 
     private _near: number;
     private _far: number;
@@ -379,11 +378,11 @@ export class Camera
     private _fovY: number;
     private _aspectRatio: number;
 
-    private _projectionMatrix: Matrix4;
-    private _viewMatrix: Matrix4;
-    private _invViewMatrix: Matrix4;
-    private _viewProjMatrix: Matrix4;
-    private _invViewProjMatrix: Matrix4;
+    private _projectionMatrix: mat4;
+    private _viewMatrix: mat4;
+    private _invViewMatrix: mat4;
+    private _viewProjMatrix: mat4;
+    private _invViewProjMatrix: mat4;
 
     private _frustum: Frustum;
 }

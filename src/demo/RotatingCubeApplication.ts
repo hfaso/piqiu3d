@@ -1,16 +1,15 @@
-import { GLProgram } from "../src/webgl/WebGLProgram";
-import { GLTexture } from "../src/webgl/WebGLTexture";
-import { GLStaticMesh } from "../src/webgl/WebGLMesh";
-import { CameraApplication } from "../src/lib/CameraApplication";
-import { Vector3 } from "../src/math/vector3";
-import { Matrix4 } from "../src/math/matrix4";
-import { HttpRequest } from "../src/utils/HttpRequest";
-import { GLTextureCache } from "../src/webgl/WebGLTextureCache";
-import { GLProgramCache } from "../src/webgl/WebGLProgramCache";
-import { DrawHelper } from "../src/lib/DrawHelper";
-import { EAxisType, MathHelper } from "../src/math/MathHelper";
-import { Cube, GeometryData } from "../src/lib/Primitives";
-import { CanvasKeyBoardEvent } from "../src/common/EventInteraction";
+import { GLProgram } from "../webgl/WebGLProgram";
+import { GLTexture } from "../webgl/WebGLTexture";
+import { GLStaticMesh } from "../webgl/WebGLMesh";
+import { CameraApplication } from "../lib/CameraApplication";
+import { vec3, mat4 } from "../common/math/TSM";
+import { HttpRequest } from "../common/utils/HttpRequest";
+import { GLTextureCache } from "../webgl/WebGLTextureCache";
+import { GLProgramCache } from "../webgl/WebGLProgramCache";
+import { DrawHelper } from "../lib/DrawHelper";
+import { EAxisType, MathHelper } from "../common/math/MathHelper";
+import { Cube, GeometryData } from "../lib/Primitives";
+import { CanvasKeyBoardEvent } from "../common/Application";
 
 export class RotatingCubeApplication extends CameraApplication
 {
@@ -29,13 +28,13 @@ export class RotatingCubeApplication extends CameraApplication
     // 立方体的角运动相关变量
     cubeAngle: number;  // cube的角位移
     cubeSpeed: number;  // cube的角速度
-    cubeMatrix: Matrix4;   // 合成的cube的世界矩阵
+    cubeMatrix: mat4;   // 合成的cube的世界矩阵
 
     // 三角形
     triAngle: number;  // 三角形的角位移
     triSpeed: number;  // 三角形的角速度
     triTimerId: number; // 由于三角形使用键盘控制的更新方式，需要添加和删除操作，需要定时器id
-    triMatrix: Matrix4; // 合成的三角形的世界矩阵
+    triMatrix: mat4; // 合成的三角形的世界矩阵
 
     private _hitAxis: EAxisType;  // 为了支持鼠标点选，记录选中的坐标轴的enum值
 
@@ -65,8 +64,8 @@ export class RotatingCubeApplication extends CameraApplication
         this._hitAxis = EAxisType.NONE; // 初始化时没选中任何一条坐标轴
 
         // 初始化时，世界矩阵都为归一化矩阵
-        this.cubeMatrix = new Matrix4();
-        this.triMatrix = new Matrix4();
+        this.cubeMatrix = new mat4();
+        this.triMatrix = new mat4();
 
         // 调整摄像机的位置
         this.camera.z = 8;
@@ -85,9 +84,9 @@ export class RotatingCubeApplication extends CameraApplication
         // 第一个渲染堆栈操作
         {
             this.matStack.pushMatrix(); // 矩阵进栈
-            this.matStack.rotate( this.cubeAngle, Vector3.up, false ); // 以角度(非弧度)为单位，每帧旋转
+            this.matStack.rotate( this.cubeAngle, vec3.up, false ); // 以角度(非弧度)为单位，每帧旋转
             // 合成modelViewProjection矩阵
-            Matrix4.product( this.camera.viewProjectionMatrix, this.matStack.modelViewMatrix, this.cubeMatrix );
+            mat4.product( this.camera.viewProjectionMatrix, this.matStack.modelViewMatrix, this.cubeMatrix );
             // 将合成的矩阵给GLProgram对象
             this.textureProgram.setMatrix4( GLProgram.MVPMatrix, this.cubeMatrix );
             this.cubeVAO.draw(); // 使用当前绑定的texture和program绘制cubeVao对象
@@ -111,10 +110,10 @@ export class RotatingCubeApplication extends CameraApplication
             this.matStack.pushMatrix(); // 新产生一个矩阵
             // 立方体绘制在Canvas的中心
             // 而三角形则绘制在向左（负号）平移2个单位处的位置
-            this.matStack.translate( new Vector3( -2, 0, 0 ) );
+            this.matStack.translate( new vec3( [ -2, 0, 0 ] ) );
 
             // 使用弧度，绕Z轴进行Roll旋转
-            this.matStack.rotate( this.triAngle, Vector3.forward, true );
+            this.matStack.rotate( this.triAngle, vec3.forward, true );
 
             // 使用类似OpenGL1.1的立即绘制模式
             this.builder.begin(); // 开始绘制，defatul使用gl.TRIANGLES方式绘制
@@ -122,7 +121,7 @@ export class RotatingCubeApplication extends CameraApplication
             this.builder.color( 0, 1, 0 ).vertex( 0.5, 0, 0 ); // 三角形第二个点的颜色与坐标
             this.builder.color( 0, 0, 1 ).vertex( 0, 0.5, 0 ); // 三角形第三个点的颜色与坐标
             // 合成model-view-projection matrix
-            Matrix4.product( this.camera.viewProjectionMatrix, this.matStack.modelViewMatrix, this.triMatrix );
+            mat4.product( this.camera.viewProjectionMatrix, this.matStack.modelViewMatrix, this.triMatrix );
             // 将mvpMatrix传递给GLMeshBuilder的end方法，该方法会正确的显示图形
             this.builder.end( this.triMatrix );
 
@@ -148,14 +147,14 @@ export class RotatingCubeApplication extends CameraApplication
             this.ctx2D.restore(); // 恢复原来的渲染状态
         }
     }
-    public drawText ( pos: Vector3, axis: EAxisType, mvp: Matrix4, inverse: boolean = false ): void
+    public drawText ( pos: vec3, axis: EAxisType, mvp: mat4, inverse: boolean = false ): void
     {
         if ( this.ctx2D === null )
         {
             return;
         }
 
-        let out: Vector3 = new Vector3();
+        let out: vec3 = new vec3();
         // 调用 MathHelper.obj2ScreenSpace这个核心函数，将局部坐标系标示的一个点变换到屏幕坐标系上
         if ( MathHelper.obj2GLViewportSpace( pos, mvp, this.camera.getViewport(), out ) )
         {

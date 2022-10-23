@@ -1,8 +1,5 @@
 import { GLAttribBits, GLAttribState, GLAttribOffsetMap } from "./WebGLAttribState"
-import Vector4 from "../math/vector4";
-import { Vector2 } from "../math/vector2";
-import { Vector3 } from "../math/vector3";
-import { Matrix4 } from "../math/matrix4";
+import { vec4, vec2, vec3, mat4 } from "../common/math/TSM";
 import { TypedArrayList } from "../common/container/TypedArrayList";
 import { GLProgram } from "./WebGLProgram";
 import { GLTexture } from "./WebGLTexture";
@@ -81,8 +78,8 @@ export class GLStaticMesh extends GLMeshBase
     protected _ibo: WebGLBuffer | null = null;
     protected _indexCount: number = 0; // 索引的数量
 
-    public mins: Vector3;
-    public maxs: Vector3;
+    public mins: vec3;
+    public maxs: vec3;
 
     public constructor ( gl: WebGLRenderingContext, attribState: GLAttribBits, vbo: Float32Array | ArrayBuffer, ibo: Uint16Array | null = null, drawMode: number = gl.TRIANGLES )
     {
@@ -115,8 +112,8 @@ export class GLStaticMesh extends GLMeshBase
         // 必须放在这里
         this.unbind();
 
-        this.mins = new Vector3();
-        this.maxs = new Vector3();
+        this.mins = new vec3();
+        this.maxs = new vec3();
     }
 
     protected setIBO ( ibo: Uint16Array | null ): void
@@ -262,9 +259,9 @@ export class GLMeshBuilder extends GLMeshBase
 
     // 为了简单起见，只支持顶点的位置坐标、纹理0坐标、颜色和法线这四种顶点属性格式
     // 表示当前正在输入的顶点属性值
-    private _color: Vector4 = new Vector4( 0, 0, 0, 0 );
-    private _texCoord: Vector2 = new Vector2( 0, 0 );
-    private _normal: Vector3 = new Vector3( 0, 0, 1 );
+    private _color: vec4 = new vec4( [ 0, 0, 0, 0 ] );
+    private _texCoord: vec2 = new vec2( [ 0, 0 ] );
+    private _normal: vec3 = new vec3( [ 0, 0, 1 ] );
 
     // 从GLAttribBits判断是否包含如下几个顶点属性
     private _hasColor: boolean;
@@ -566,7 +563,7 @@ export class GLMeshBuilder extends GLMeshBase
     }
 
     // end方法用于渲染操作
-    public end ( mvp: Matrix4 ): void
+    public end ( mvp: mat4 ): void
     {
         this.program.bind(); // 绑定GLProgram
         this.program.setMatrix4( GLProgram.MVPMatrix, mvp ); // 载入MVPMatrix uniform变量
